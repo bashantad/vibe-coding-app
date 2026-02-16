@@ -1,6 +1,7 @@
 import logging
 
 from flask import Blueprint, render_template, request, redirect, url_for
+from flask_login import login_required, current_user
 
 from models import db, Article, Tag
 
@@ -36,6 +37,13 @@ def _resolve_tags(tag_names):
     return tags
 
 
+def _check_ownership(article):
+    if article.user_id and article.user_id != current_user.id:
+        logger.error("User %s not authorized to modify article %d", current_user.username, article.id)
+        return False
+    return True
+
+
 @bp.route("/", strict_slashes=False)
 def list():
     articles = Article.query.order_by(Article.id).all()
@@ -43,23 +51,25 @@ def list():
 
 
 @bp.route("/new")
+@login_required
 def new():
     return render_template("articles_form.html", article=None)
 
 
 @bp.route("/add", methods=["POST"])
+@login_required
 def add():
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
-    author = request.form.get("author", "").strip()
-    if not title or not author:
-        logger.error("Attempted to add an article with missing title or author")
+    if not title:
+        logger.error("Attempted to add an article with missing title")
         return redirect(url_for("articles.new"))
     tag_names = _parse_tags(request.form.get("tags", ""))
     article = Article(
         title=title,
         description=description,
-        author=author,
+        author=current_user.username,
+        user_id=current_user.id,
         tag_objects=_resolve_tags(tag_names),
     )
     db.session.add(article)
@@ -69,25 +79,30 @@ def add():
 
 
 @bp.route("/edit/<int:article_id>")
+@login_required
 def edit(article_id):
     article, err = _get_article_or_redirect(article_id, "editing")
     if err:
         return err
+    if not _check_ownership(article):
+        return redirect(url_for("articles.list"))
     return render_template("articles_form.html", article=article)
 
 
 @bp.route("/update/<int:article_id>", methods=["POST"])
+@login_required
 def update(article_id):
     article, err = _get_article_or_redirect(article_id, "update")
     if err:
         return err
+    if not _check_ownership(article):
+        return redirect(url_for("articles.list"))
     title = request.form.get("title", "").strip()
     if not title:
         logger.error("Attempted to update article %d with an empty title", article_id)
         return redirect(url_for("articles.edit", article_id=article_id))
     article.title = title
     article.description = request.form.get("description", "").strip()
-    article.author = request.form.get("author", "").strip()
     article.tag_objects = _resolve_tags(_parse_tags(request.form.get("tags", "")))
     db.session.commit()
     logger.info("Updated article %d: %s", article_id, title)
@@ -103,10 +118,13 @@ def detail(article_id):
 
 
 @bp.route("/delete/<int:article_id>")
+@login_required
 def delete(article_id):
     article = db.session.get(Article, article_id)
     if not article:
         logger.error("Article %d not found for deletion", article_id)
+    elif not _check_ownership(article):
+        pass
     else:
         db.session.delete(article)
         db.session.commit()

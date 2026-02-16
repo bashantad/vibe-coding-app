@@ -1,62 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ article.title }}</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container" style="max-width: 700px;">
-        <nav class="mt-4 mb-3">
-            <a href="/articles" class="btn btn-outline-secondary btn-sm">&larr; Back to Articles</a>
-        </nav>
-        <h1>{{ article.title }}</h1>
-        {% if article.author %}
-        <p class="text-muted">By {{ article.author }}</p>
-        {% endif %}
-        {% if article.description %}
-        <p class="lead">{{ article.description }}</p>
-        {% endif %}
-        {% if article.tags %}
-        <div class="mb-4">
-            {% for tag in article.tags %}
-            <span class="badge bg-light text-dark border me-1">{{ tag }}</span>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        <hr>
-        <h5>Comments ({{ article.comments | length }})</h5>
-        {% if article.comments %}
-        {% for comment in article.comments %}
-        <div class="card mb-2">
-            <div class="card-body py-2 px-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <strong class="small">{{ comment.author }}</strong>
-                    <a href="/articles/{{ article.id }}/comments/delete/{{ comment.id }}" class="btn btn-outline-danger btn-sm py-0 px-1">&times;</a>
-                </div>
-                <p class="mb-0 mt-1">{{ comment.body }}</p>
-            </div>
-        </div>
+{% extends "base.html" %}
+{% block title %}{{ article.title }}{% endblock %}
+{% block content %}
+    <nav class="mt-4 mb-3">
+        <a href="/articles" class="btn btn-outline-secondary btn-sm">&larr; Back to Articles</a>
+    </nav>
+    <h1>{{ article.title }}</h1>
+    {% if article.author %}
+    <p class="text-muted">By {{ article.author }}</p>
+    {% endif %}
+    {% if article.description %}
+    <p class="lead">{{ article.description }}</p>
+    {% endif %}
+    {% if article.tags %}
+    <div class="mb-4">
+        {% for tag in article.tags %}
+        <span class="badge bg-light text-dark border me-1">{{ tag }}</span>
         {% endfor %}
-        {% else %}
-        <p class="text-muted fst-italic">No comments yet. Be the first to comment.</p>
-        {% endif %}
+    </div>
+    {% endif %}
 
-        <div class="card mt-3">
-            <div class="card-body">
-                <form action="/articles/{{ article.id }}/comments/add" method="post">
-                    <div class="mb-2">
-                        <input type="text" name="author" class="form-control form-control-sm" placeholder="Your name (optional)">
-                    </div>
-                    <div class="mb-2">
-                        <textarea name="body" class="form-control form-control-sm" placeholder="Write a comment..." rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-sm">Add Comment</button>
-                </form>
+    <hr>
+    <h5>Comments ({{ article.comments | length }})</h5>
+    {% if article.comments %}
+    {% for comment in article.comments %}
+    <div class="card mb-2">
+        <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <strong class="small">{{ comment.author }}</strong>
+                {% if current_user.is_authenticated and (not comment.user_id or comment.user_id == current_user.id) %}
+                <a href="/articles/{{ article.id }}/comments/delete/{{ comment.id }}" class="btn btn-outline-danger btn-sm py-0 px-1">&times;</a>
+                {% endif %}
             </div>
+            <p class="mb-0 mt-1">{{ comment.body }}</p>
         </div>
     </div>
-</body>
-</html>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted fst-italic">No comments yet. Be the first to comment.</p>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+    <div class="card mt-3">
+        <div class="card-body">
+            <form action="/articles/{{ article.id }}/comments/add" method="post">
+                <div class="mb-2">
+                    <textarea name="body" class="form-control form-control-sm" placeholder="Write a comment..." rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Add Comment</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

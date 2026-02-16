@@ -1,36 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if article %}Edit Article{% else %}New Article{% endif %}</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container" style="max-width: 600px;">
-        <h1 class="text-center my-4">{% if article %}Edit Article{% else %}New Article{% endif %}</h1>
-        <nav class="text-center mb-4">
-            <a href="/articles" class="btn btn-outline-secondary btn-sm">&larr; Back to Articles</a>
-        </nav>
-        <form action="{% if article %}/articles/update/{{ article.id }}{% else %}/articles/add{% endif %}" method="post">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" id="title" name="title" class="form-control" placeholder="Title" value="{{ article.title if article else '' }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea id="description" name="description" class="form-control" placeholder="Description" rows="4">{{ article.description if article else '' }}</textarea>
-            </div>
-            <div class="mb-3">
-                <label for="author" class="form-label">Author</label>
-                <input type="text" id="author" name="author" class="form-control" placeholder="Author" value="{{ article.author if article else '' }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="tags" class="form-label">Tags</label>
-                <input type="text" id="tags" name="tags" class="form-control" placeholder="Tags (comma-separated)" value="{{ article.tags | join(', ') if article else '' }}">
-            </div>
-            <button type="submit" class="btn btn-primary">{% if article %}Update Article{% else %}Create Article{% endif %}</button>
-        </form>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}{% if article %}Edit Article{% else %}New Article{% endif %}{% endblock %}
+{% block content %}
+    <h1 class="text-center my-4">{% if article %}Edit Article{% else %}New Article{% endif %}</h1>
+    <nav class="text-center mb-4">
+        <a href="/articles" class="btn btn-outline-secondary btn-sm">&larr; Back to Articles</a>
+    </nav>
+    <form action="{% if article %}/articles/update/{{ article.id }}{% else %}/articles/add{% endif %}" method="post">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="Title" value="{{ article.title if article else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" name="description" class="form-control" placeholder="Description" rows="4">{{ article.description if article else '' }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="tags" class="form-label">Tags</label>
+            <input type="text" id="tags" name="tags" class="form-control" placeholder="Tags (comma-separated)" value="{{ article.tags | join(', ') if article else '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">{% if article %}Update Article{% else %}Create Article{% endif %}</button>
+    </form>
+{% endblock %}
