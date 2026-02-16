@@ -4,59 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Articles</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; }
-        h1 { text-align: center; }
-        nav { display: flex; justify-content: space-between; margin-bottom: 24px; }
-        nav a { color: #007bff; text-decoration: none; }
-        .article { padding: 16px 0; border-bottom: 1px solid #eee; }
-        .article-header { display: flex; justify-content: space-between; align-items: baseline; }
-        .article-title { font-size: 1.2rem; font-weight: bold; margin: 0; color: #007bff; text-decoration: none; }
-        .article-title:hover { text-decoration: underline; }
-        .article-meta { font-size: 0.85rem; color: #888; margin-top: 4px; }
-        .article-desc { margin-top: 8px; }
-        .tag { display: inline-block; background: #e9ecef; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; margin-right: 4px; }
-        .actions { display: flex; gap: 12px; align-items: center; }
-        .actions a { text-decoration: none; font-size: 0.9rem; }
-        .edit-link { color: #007bff; }
-        .delete-link { color: #dc3545; font-size: 1.1rem; }
-        .empty { text-align: center; color: #999; margin-top: 40px; }
-    </style>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Articles</h1>
-    <nav>
-        <a href="/">&larr; Back to Todos</a>
-        <a href="/articles/new">+ New Article</a>
-    </nav>
-    {% if articles %}
-    {% for article in articles %}
-    <div class="article">
-        <div class="article-header">
-            <a href="/articles/{{ article.id }}" class="article-title">{{ article.title }}</a>
-            <div class="actions">
-                <a href="/articles/edit/{{ article.id }}" class="edit-link">Edit</a>
-                <a href="/articles/delete/{{ article.id }}" class="delete-link">&#x2715;</a>
+    <div class="container" style="max-width: 700px;">
+        <h1 class="text-center my-4">Articles</h1>
+        <nav class="d-flex justify-content-between mb-4">
+            <a href="/" class="btn btn-outline-secondary btn-sm">&larr; Back to Todos</a>
+            <a href="/articles/new" class="btn btn-primary btn-sm">+ New Article</a>
+        </nav>
+        {% if articles %}
+        {% for article in articles %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="card-title mb-1">
+                        <a href="/articles/{{ article.id }}" class="text-decoration-none">{{ article.title }}</a>
+                    </h5>
+                    <div class="d-flex gap-2 flex-shrink-0 ms-2">
+                        <a href="/articles/edit/{{ article.id }}" class="btn btn-outline-primary btn-sm">Edit</a>
+                        <a href="/articles/delete/{{ article.id }}" class="btn btn-outline-danger btn-sm">&times;</a>
+                    </div>
+                </div>
+                {% if article.author %}
+                <p class="card-subtitle text-muted small mb-2">By {{ article.author }}</p>
+                {% endif %}
+                {% if article.description %}
+                <p class="card-text">{{ article.description }}</p>
+                {% endif %}
+                {% if article.tags %}
+                <div class="mb-2">
+                    {% for tag in article.tags %}
+                    <span class="badge bg-light text-dark border me-1">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <a href="/articles/{{ article.id }}" class="text-muted small text-decoration-none">{{ article.comments | length }} comment{{ 's' if article.comments | length != 1 }}</a>
             </div>
         </div>
-        {% if article.author %}
-        <div class="article-meta">By {{ article.author }}</div>
+        {% endfor %}
+        {% else %}
+        <p class="text-center text-muted mt-4">No articles yet. <a href="/articles/new">Create one</a>.</p>
         {% endif %}
-        {% if article.description %}
-        <div class="article-desc">{{ article.description }}</div>
-        {% endif %}
-        {% if article.tags %}
-        <div class="article-meta">
-            {% for tag in article.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
-        </div>
-        {% endif %}
-        <div class="article-meta">
-            <a href="/articles/{{ article.id }}" style="color:#888;text-decoration:none">{{ article.comments | length }} comment{{ 's' if article.comments | length != 1 }}</a>
-        </div>
     </div>
-    {% endfor %}
-    {% else %}
-    <p class="empty">No articles yet. <a href="/articles/new">Create one</a>.</p>
-    {% endif %}
 </body>
 </html>

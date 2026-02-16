@@ -4,31 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if article %}Edit Article{% else %}New Article{% endif %}</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; }
-        h1 { text-align: center; }
-        nav { text-align: center; margin-bottom: 24px; }
-        nav a { color: #007bff; text-decoration: none; }
-        form { display: flex; flex-direction: column; gap: 8px; }
-        label { font-weight: bold; font-size: 0.9rem; margin-top: 8px; }
-        input[type="text"], textarea { padding: 8px; font-size: 1rem; font-family: inherit; }
-        textarea { resize: vertical; min-height: 100px; }
-        button { padding: 10px 20px; cursor: pointer; align-self: flex-start; margin-top: 12px; }
-    </style>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>{% if article %}Edit Article{% else %}New Article{% endif %}</h1>
-    <nav><a href="/articles">&larr; Back to Articles</a></nav>
-    <form action="{% if article %}/articles/update/{{ article.id }}{% else %}/articles/add{% endif %}" method="post">
-        <label for="title">Title</label>
-        <input type="text" id="title" name="title" placeholder="Title" value="{{ article.title if article else '' }}" required>
-        <label for="description">Description</label>
-        <textarea id="description" name="description" placeholder="Description">{{ article.description if article else '' }}</textarea>
-        <label for="author">Author</label>
-        <input type="text" id="author" name="author" placeholder="Author" value="{{ article.author if article else '' }}" required>
-        <label for="tags">Tags</label>
-        <input type="text" id="tags" name="tags" placeholder="Tags (comma-separated)" value="{{ article.tags | join(', ') if article else '' }}">
-        <button type="submit">{% if article %}Update Article{% else %}Create Article{% endif %}</button>
-    </form>
+    <div class="container" style="max-width: 600px;">
+        <h1 class="text-center my-4">{% if article %}Edit Article{% else %}New Article{% endif %}</h1>
+        <nav class="text-center mb-4">
+            <a href="/articles" class="btn btn-outline-secondary btn-sm">&larr; Back to Articles</a>
+        </nav>
+        <form action="{% if article %}/articles/update/{{ article.id }}{% else %}/articles/add{% endif %}" method="post">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="Title" value="{{ article.title if article else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" name="description" class="form-control" placeholder="Description" rows="4">{{ article.description if article else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="author" class="form-label">Author</label>
+                <input type="text" id="author" name="author" class="form-control" placeholder="Author" value="{{ article.author if article else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="tags" class="form-label">Tags</label>
+                <input type="text" id="tags" name="tags" class="form-control" placeholder="Tags (comma-separated)" value="{{ article.tags | join(', ') if article else '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">{% if article %}Update Article{% else %}Create Article{% endif %}</button>
+        </form>
+    </div>
 </body>
 </html>
