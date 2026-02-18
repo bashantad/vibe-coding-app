@@ -31,7 +31,7 @@
                 <a href="/articles/{{ article.id }}/comments/delete/{{ comment.id }}" class="btn btn-outline-danger btn-sm py-0 px-1">&times;</a>
                 {% endif %}
             </div>
-            <p class="mb-0 mt-1">{{ comment.body }}</p>
+            <p class="mb-0 mt-1">{{ comment.description }}</p>
         </div>
     </div>
     {% endfor %}
@@ -44,7 +44,7 @@
         <div class="card-body">
             <form action="/articles/{{ article.id }}/comments/add" method="post">
                 <div class="mb-2">
-                    <textarea name="body" class="form-control form-control-sm" placeholder="Write a comment..." rows="3" required></textarea>
+                    <textarea name="description" class="form-control form-control-sm" placeholder="Write a comment..." rows="3" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">Add Comment</button>
             </form>

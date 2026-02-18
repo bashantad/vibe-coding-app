@@ -59,7 +59,7 @@ class Article(db.Model):
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.String(128), default="Anonymous")
-    body = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     article_id = db.Column(db.Integer, db.ForeignKey("article.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 

@@ -17,7 +17,7 @@ class TestCommentAdd:
     def test_add_requires_login(self, client, db):
         art = _create_article(db)
         resp = client.post(
-            f"/articles/{art.id}/comments/add", data={"body": "Hello"}
+            f"/articles/{art.id}/comments/add", data={"description": "Hello"}
         )
         assert resp.status_code == 302
         assert "/login" in resp.headers["Location"]
@@ -27,26 +27,26 @@ class TestCommentAdd:
         login(client)
         resp = client.post(
             f"/articles/{art.id}/comments/add",
-            data={"body": "Nice article!"},
+            data={"description": "Nice article!"},
             follow_redirects=True,
         )
         assert resp.status_code == 200
         comment = Comment.query.first()
-        assert comment.body == "Nice article!"
+        assert comment.description == "Nice article!"
         assert comment.author == "alice"
         assert comment.user_id == user.id
         assert comment.article_id == art.id
 
-    def test_add_empty_body(self, client, user, db):
+    def test_add_empty_description(self, client, user, db):
         art = _create_article(db, user)
         login(client)
-        client.post(f"/articles/{art.id}/comments/add", data={"body": ""})
+        client.post(f"/articles/{art.id}/comments/add", data={"description": ""})
         assert Comment.query.count() == 0
 
     def test_add_to_nonexistent_article(self, client, user):
         login(client)
         resp = client.post(
-            "/articles/999/comments/add", data={"body": "Hello"}
+            "/articles/999/comments/add", data={"description": "Hello"}
         )
         assert resp.status_code == 302
 
@@ -71,7 +71,7 @@ class TestCommentAdd:
 class TestCommentDelete:
     def test_delete_requires_login(self, client, db):
         art = _create_article(db)
-        comment = Comment(author="anon", body="Hi", article_id=art.id)
+        comment = Comment(author="anon", description="Hi", article_id=art.id)
         db.session.add(comment)
         db.session.commit()
         resp = client.get(f"/articles/{art.id}/comments/delete/{comment.id}")
@@ -80,7 +80,7 @@ class TestCommentDelete:
 
     def test_delete_own_comment(self, client, user, db):
         art = _create_article(db, user)
-        comment = Comment(author="alice", body="My comment", article_id=art.id, user_id=user.id)
+        comment = Comment(author="alice", description="My comment", article_id=art.id, user_id=user.id)
         db.session.add(comment)
         db.session.commit()
         login(client)
@@ -89,7 +89,7 @@ class TestCommentDelete:
 
     def test_delete_other_user_comment_denied(self, client, user, other_user, db):
         art = _create_article(db, user)
-        comment = Comment(author="bob", body="Bob's comment", article_id=art.id, user_id=other_user.id)
+        comment = Comment(author="bob", description="Bob's comment", article_id=art.id, user_id=other_user.id)
         db.session.add(comment)
         db.session.commit()
         login(client, "alice", "password123")
@@ -98,7 +98,7 @@ class TestCommentDelete:
 
     def test_delete_legacy_comment_allowed(self, client, user, db):
         art = _create_article(db, user)
-        comment = Comment(author="old", body="Legacy", article_id=art.id, user_id=None)
+        comment = Comment(author="old", description="Legacy", article_id=art.id, user_id=None)
         db.session.add(comment)
         db.session.commit()
         login(client)
@@ -110,7 +110,7 @@ class TestCommentDelete:
         art2 = Article(title="Other", author="alice", user_id=user.id)
         db.session.add(art2)
         db.session.commit()
-        comment = Comment(author="alice", body="On art1", article_id=art1.id, user_id=user.id)
+        comment = Comment(author="alice", description="On art1", article_id=art1.id, user_id=user.id)
         db.session.add(comment)
         db.session.commit()
         login(client)
@@ -127,7 +127,7 @@ class TestCommentDelete:
 
     def test_delete_button_shown_for_owner(self, client, user, db):
         art = _create_article(db, user)
-        comment = Comment(author="alice", body="Mine", article_id=art.id, user_id=user.id)
+        comment = Comment(author="alice", description="Mine", article_id=art.id, user_id=user.id)
         db.session.add(comment)
         db.session.commit()
         login(client)
@@ -136,7 +136,7 @@ class TestCommentDelete:
 
     def test_delete_button_hidden_for_non_owner(self, client, user, other_user, db):
         art = _create_article(db, user)
-        comment = Comment(author="bob", body="Bob's", article_id=art.id, user_id=other_user.id)
+        comment = Comment(author="bob", description="Bob's", article_id=art.id, user_id=other_user.id)
         db.session.add(comment)
         db.session.commit()
         login(client, "alice", "password123")

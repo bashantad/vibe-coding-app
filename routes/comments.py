@@ -18,13 +18,13 @@ def add(article_id):
     if not article:
         logger.error("Article %d not found for comment", article_id)
         return redirect(url_for("articles.list"))
-    body = request.form.get("body", "").strip()
-    if not body:
+    description = request.form.get("description", "").strip()
+    if not description:
         logger.error("Attempted to add an empty comment to article %d", article_id)
         return redirect(url_for("articles.detail", article_id=article_id))
     comment = Comment(
         author=current_user.username,
-        body=body,
+        description=description,
         article_id=article_id,
         user_id=current_user.id,
     )
