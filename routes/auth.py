@@ -1,7 +1,8 @@
 import logging
+import re
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 from models import db, User
 
@@ -45,6 +46,37 @@ def login():
         next_page = request.args.get("next")
         return redirect(next_page or url_for("todos.index"))
     return render_template("auth_login.html")
+
+
+@bp.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        full_name = request.form.get("full_name", "").strip() or None
+        email = request.form.get("email", "").strip() or None
+
+        if not username:
+            flash("Username is required.", "danger")
+            return redirect(url_for("auth.profile"))
+
+        if username != current_user.username:
+            if User.query.filter_by(username=username).first():
+                flash("Username already taken.", "danger")
+                return redirect(url_for("auth.profile"))
+
+        if email and not re.match(r"^[^@]+@[^@]+\.[^@]+$", email):
+            flash("Invalid email address.", "danger")
+            return redirect(url_for("auth.profile"))
+
+        current_user.username = username
+        current_user.full_name = full_name
+        current_user.email = email
+        db.session.commit()
+        flash("Profile updated.", "success")
+        return redirect(url_for("auth.profile"))
+
+    return render_template("profile.html")
 
 
 @bp.route("/logout")
