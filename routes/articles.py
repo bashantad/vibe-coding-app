@@ -1,25 +1,13 @@
 import logging
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
 from models import db, Article, Tag
 
 logger = logging.getLogger(__name__)
 
-bp = Blueprint("articles", __name__, url_prefix="/articles")
-
-
-def get_article(article_id):
-    return db.session.get(Article, article_id)
-
-
-def _get_article_or_redirect(article_id, action="accessing"):
-    article = get_article(article_id)
-    if not article:
-        logger.error("Article %d not found for %s", article_id, action)
-        return None, redirect(url_for("articles.list"))
-    return article, None
+bp = Blueprint("articles", __name__, url_prefix="/api/articles")
 
 
 def _parse_tags(tags_raw):
@@ -37,34 +25,44 @@ def _resolve_tags(tag_names):
     return tags
 
 
-def _check_ownership(article):
-    if article.user_id and article.user_id != current_user.id:
-        logger.error("User %s not authorized to modify article %d", current_user.username, article.id)
-        return False
-    return True
+def _article_dict(article, include_comments=False):
+    d = {
+        "id": article.id,
+        "title": article.title,
+        "description": article.description,
+        "author": article.author,
+        "user_id": article.user_id,
+        "tags": article.tags,
+    }
+    if include_comments:
+        d["comments"] = [
+            {
+                "id": c.id,
+                "author": c.author,
+                "description": c.description,
+                "article_id": c.article_id,
+                "user_id": c.user_id,
+            }
+            for c in article.comments
+        ]
+    return d
 
 
-@bp.route("/", strict_slashes=False)
-def list():
+@bp.route("/", methods=["GET"], strict_slashes=False)
+def list_articles():
     articles = Article.query.order_by(Article.id).all()
-    return render_template("articles_list.html", articles=articles)
+    return jsonify({"articles": [_article_dict(a) for a in articles]}), 200
 
 
-@bp.route("/new")
-@login_required
-def new():
-    return render_template("articles_form.html", article=None)
-
-
-@bp.route("/add", methods=["POST"])
+@bp.route("/", methods=["POST"], strict_slashes=False)
 @login_required
 def add():
-    title = request.form.get("title", "").strip()
-    description = request.form.get("description", "").strip()
+    data = request.get_json() or {}
+    title = data.get("title", "").strip()
+    description = data.get("description", "").strip()
     if not title:
-        logger.error("Attempted to add an article with missing title")
-        return redirect(url_for("articles.new"))
-    tag_names = _parse_tags(request.form.get("tags", ""))
+        return jsonify({"error": "Title is required."}), 400
+    tag_names = _parse_tags(data.get("tags", ""))
     article = Article(
         title=title,
         description=description,
@@ -75,58 +73,46 @@ def add():
     db.session.add(article)
     db.session.commit()
     logger.info("Added article %d: %s", article.id, title)
-    return redirect(url_for("articles.list"))
+    return jsonify({"article": _article_dict(article)}), 201
 
 
-@bp.route("/edit/<int:article_id>")
-@login_required
-def edit(article_id):
-    article, err = _get_article_or_redirect(article_id, "editing")
-    if err:
-        return err
-    if not _check_ownership(article):
-        return redirect(url_for("articles.list"))
-    return render_template("articles_form.html", article=article)
+@bp.route("/<int:article_id>", methods=["GET"])
+def detail(article_id):
+    article = db.session.get(Article, article_id)
+    if not article:
+        return jsonify({"error": "Article not found."}), 404
+    return jsonify({"article": _article_dict(article, include_comments=True)}), 200
 
 
-@bp.route("/update/<int:article_id>", methods=["POST"])
+@bp.route("/<int:article_id>", methods=["PUT"])
 @login_required
 def update(article_id):
-    article, err = _get_article_or_redirect(article_id, "update")
-    if err:
-        return err
-    if not _check_ownership(article):
-        return redirect(url_for("articles.list"))
-    title = request.form.get("title", "").strip()
+    article = db.session.get(Article, article_id)
+    if not article:
+        return jsonify({"error": "Article not found."}), 404
+    if article.user_id and article.user_id != current_user.id:
+        return jsonify({"error": "Not authorized."}), 403
+    data = request.get_json() or {}
+    title = data.get("title", "").strip()
     if not title:
-        logger.error("Attempted to update article %d with an empty title", article_id)
-        return redirect(url_for("articles.edit", article_id=article_id))
+        return jsonify({"error": "Title is required."}), 400
     article.title = title
-    article.description = request.form.get("description", "").strip()
-    article.tag_objects = _resolve_tags(_parse_tags(request.form.get("tags", "")))
+    article.description = data.get("description", "").strip()
+    article.tag_objects = _resolve_tags(_parse_tags(data.get("tags", "")))
     db.session.commit()
     logger.info("Updated article %d: %s", article_id, title)
-    return redirect(url_for("articles.list"))
+    return jsonify({"article": _article_dict(article)}), 200
 
 
-@bp.route("/<int:article_id>")
-def detail(article_id):
-    article, err = _get_article_or_redirect(article_id, "viewing")
-    if err:
-        return err
-    return render_template("articles_detail.html", article=article)
-
-
-@bp.route("/delete/<int:article_id>")
+@bp.route("/<int:article_id>", methods=["DELETE"])
 @login_required
 def delete(article_id):
     article = db.session.get(Article, article_id)
     if not article:
-        logger.error("Article %d not found for deletion", article_id)
-    elif not _check_ownership(article):
-        pass
-    else:
-        db.session.delete(article)
-        db.session.commit()
-        logger.info("Deleted article %d", article_id)
-    return redirect(url_for("articles.list"))
+        return jsonify({"error": "Article not found."}), 404
+    if article.user_id and article.user_id != current_user.id:
+        return jsonify({"error": "Not authorized."}), 403
+    db.session.delete(article)
+    db.session.commit()
+    logger.info("Deleted article %d", article_id)
+    return jsonify({"message": "Article deleted."}), 200

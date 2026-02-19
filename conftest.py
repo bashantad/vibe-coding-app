@@ -56,15 +56,13 @@ def other_user(db):
 
 def login(client, username="alice", password="password123"):
     return client.post(
-        "/login",
-        data={"username": username, "password": password},
-        follow_redirects=True,
+        "/api/login",
+        json={"username": username, "password": password},
     )
 
 
 def signup(client, username="alice", password="password123"):
     return client.post(
-        "/signup",
-        data={"username": username, "password": password},
-        follow_redirects=True,
+        "/api/signup",
+        json={"username": username, "password": password},
     )

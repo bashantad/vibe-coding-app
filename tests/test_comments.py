@@ -17,55 +17,39 @@ class TestCommentAdd:
     def test_add_requires_login(self, client, db):
         art = _create_article(db)
         resp = client.post(
-            f"/articles/{art.id}/comments/add", data={"description": "Hello"}
+            f"/api/articles/{art.id}/comments", json={"description": "Hello"}
         )
-        assert resp.status_code == 302
-        assert "/login" in resp.headers["Location"]
+        assert resp.status_code == 401
 
     def test_add_creates_comment(self, client, user, db):
         art = _create_article(db, user)
         login(client)
         resp = client.post(
-            f"/articles/{art.id}/comments/add",
-            data={"description": "Nice article!"},
-            follow_redirects=True,
+            f"/api/articles/{art.id}/comments",
+            json={"description": "Nice article!"},
         )
-        assert resp.status_code == 200
-        comment = Comment.query.first()
-        assert comment.description == "Nice article!"
-        assert comment.author == "alice"
-        assert comment.user_id == user.id
-        assert comment.article_id == art.id
+        assert resp.status_code == 201
+        comment = resp.get_json()["comment"]
+        assert comment["description"] == "Nice article!"
+        assert comment["author"] == "alice"
+        assert comment["user_id"] == user.id
+        assert comment["article_id"] == art.id
 
     def test_add_empty_description(self, client, user, db):
         art = _create_article(db, user)
         login(client)
-        client.post(f"/articles/{art.id}/comments/add", data={"description": ""})
+        resp = client.post(
+            f"/api/articles/{art.id}/comments", json={"description": ""}
+        )
+        assert resp.status_code == 400
         assert Comment.query.count() == 0
 
     def test_add_to_nonexistent_article(self, client, user):
         login(client)
         resp = client.post(
-            "/articles/999/comments/add", data={"description": "Hello"}
+            "/api/articles/999/comments", json={"description": "Hello"}
         )
-        assert resp.status_code == 302
-
-    def test_comment_form_hidden_logged_out(self, client, db):
-        art = _create_article(db)
-        resp = client.get(f"/articles/{art.id}")
-        assert b"Add Comment" not in resp.data
-
-    def test_comment_form_shown_logged_in(self, client, user, db):
-        art = _create_article(db, user)
-        login(client)
-        resp = client.get(f"/articles/{art.id}")
-        assert b"Add Comment" in resp.data
-
-    def test_no_author_input_field(self, client, user, db):
-        art = _create_article(db, user)
-        login(client)
-        resp = client.get(f"/articles/{art.id}")
-        assert b'name="author"' not in resp.data
+        assert resp.status_code == 404
 
 
 class TestCommentDelete:
@@ -74,9 +58,8 @@ class TestCommentDelete:
         comment = Comment(author="anon", description="Hi", article_id=art.id)
         db.session.add(comment)
         db.session.commit()
-        resp = client.get(f"/articles/{art.id}/comments/delete/{comment.id}")
-        assert resp.status_code == 302
-        assert "/login" in resp.headers["Location"]
+        resp = client.delete(f"/api/articles/{art.id}/comments/{comment.id}")
+        assert resp.status_code == 401
 
     def test_delete_own_comment(self, client, user, db):
         art = _create_article(db, user)
@@ -84,7 +67,8 @@ class TestCommentDelete:
         db.session.add(comment)
         db.session.commit()
         login(client)
-        client.get(f"/articles/{art.id}/comments/delete/{comment.id}")
+        resp = client.delete(f"/api/articles/{art.id}/comments/{comment.id}")
+        assert resp.status_code == 200
         assert Comment.query.count() == 0
 
     def test_delete_other_user_comment_denied(self, client, user, other_user, db):
@@ -93,7 +77,8 @@ class TestCommentDelete:
         db.session.add(comment)
         db.session.commit()
         login(client, "alice", "password123")
-        client.get(f"/articles/{art.id}/comments/delete/{comment.id}")
+        resp = client.delete(f"/api/articles/{art.id}/comments/{comment.id}")
+        assert resp.status_code == 403
         assert Comment.query.count() == 1
 
     def test_delete_legacy_comment_allowed(self, client, user, db):
@@ -102,7 +87,8 @@ class TestCommentDelete:
         db.session.add(comment)
         db.session.commit()
         login(client)
-        client.get(f"/articles/{art.id}/comments/delete/{comment.id}")
+        resp = client.delete(f"/api/articles/{art.id}/comments/{comment.id}")
+        assert resp.status_code == 200
         assert Comment.query.count() == 0
 
     def test_delete_comment_wrong_article(self, client, user, db):
@@ -114,31 +100,12 @@ class TestCommentDelete:
         db.session.add(comment)
         db.session.commit()
         login(client)
-        client.get(f"/articles/{art2.id}/comments/delete/{comment.id}")
+        resp = client.delete(f"/api/articles/{art2.id}/comments/{comment.id}")
+        assert resp.status_code == 404
         assert Comment.query.count() == 1
 
     def test_delete_nonexistent_comment(self, client, user, db):
         art = _create_article(db, user)
         login(client)
-        resp = client.get(
-            f"/articles/{art.id}/comments/delete/999", follow_redirects=True
-        )
-        assert resp.status_code == 200
-
-    def test_delete_button_shown_for_owner(self, client, user, db):
-        art = _create_article(db, user)
-        comment = Comment(author="alice", description="Mine", article_id=art.id, user_id=user.id)
-        db.session.add(comment)
-        db.session.commit()
-        login(client)
-        resp = client.get(f"/articles/{art.id}")
-        assert b"comments/delete" in resp.data
-
-    def test_delete_button_hidden_for_non_owner(self, client, user, other_user, db):
-        art = _create_article(db, user)
-        comment = Comment(author="bob", description="Bob's", article_id=art.id, user_id=other_user.id)
-        db.session.add(comment)
-        db.session.commit()
-        login(client, "alice", "password123")
-        resp = client.get(f"/articles/{art.id}")
-        assert b"comments/delete" not in resp.data
+        resp = client.delete(f"/api/articles/{art.id}/comments/999")
+        assert resp.status_code == 404

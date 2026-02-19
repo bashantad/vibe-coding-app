@@ -4,45 +4,38 @@ from models import Todo
 
 class TestTodoIndex:
     def test_index_public(self, client, db):
-        resp = client.get("/")
+        resp = client.get("/api/todos")
         assert resp.status_code == 200
-        assert b"Todo App" in resp.data
+        assert resp.get_json()["todos"] == []
 
     def test_index_shows_todos(self, client, db):
         db.session.add(Todo(title="Buy milk", author="legacy"))
         db.session.commit()
-        resp = client.get("/")
-        assert b"Buy milk" in resp.data
-        assert b"legacy" in resp.data
-
-    def test_add_form_hidden_when_logged_out(self, client, db):
-        resp = client.get("/")
-        assert b'name="title"' not in resp.data
-
-    def test_add_form_shown_when_logged_in(self, client, user):
-        login(client)
-        resp = client.get("/")
-        assert b'name="title"' in resp.data
+        resp = client.get("/api/todos")
+        todos = resp.get_json()["todos"]
+        assert len(todos) == 1
+        assert todos[0]["title"] == "Buy milk"
+        assert todos[0]["author"] == "legacy"
 
 
 class TestTodoAdd:
     def test_add_requires_login(self, client, db):
-        resp = client.post("/add", data={"title": "Test"})
-        assert resp.status_code == 302
-        assert "/login" in resp.headers["Location"]
+        resp = client.post("/api/todos", json={"title": "Test"})
+        assert resp.status_code == 401
 
     def test_add_creates_todo(self, client, user):
         login(client)
-        resp = client.post("/add", data={"title": "New todo"}, follow_redirects=True)
-        assert resp.status_code == 200
-        todo = Todo.query.first()
-        assert todo.title == "New todo"
-        assert todo.author == "alice"
-        assert todo.user_id == user.id
+        resp = client.post("/api/todos", json={"title": "New todo"})
+        assert resp.status_code == 201
+        todo = resp.get_json()["todo"]
+        assert todo["title"] == "New todo"
+        assert todo["author"] == "alice"
+        assert todo["user_id"] == user.id
 
     def test_add_empty_title(self, client, user):
         login(client)
-        client.post("/add", data={"title": ""})
+        resp = client.post("/api/todos", json={"title": ""})
+        assert resp.status_code == 400
         assert Todo.query.count() == 0
 
 
@@ -51,25 +44,25 @@ class TestTodoToggle:
         todo = Todo(title="Test", author="x")
         db.session.add(todo)
         db.session.commit()
-        resp = client.get(f"/toggle/{todo.id}")
-        assert resp.status_code == 302
-        assert "/login" in resp.headers["Location"]
+        resp = client.patch(f"/api/todos/{todo.id}/toggle")
+        assert resp.status_code == 401
 
     def test_toggle_own_todo(self, client, user):
         login(client)
-        client.post("/add", data={"title": "Mine"})
+        client.post("/api/todos", json={"title": "Mine"})
         todo = Todo.query.first()
         assert todo.done is False
-        client.get(f"/toggle/{todo.id}")
-        todo = Todo.query.first()
-        assert todo.done is True
+        resp = client.patch(f"/api/todos/{todo.id}/toggle")
+        assert resp.status_code == 200
+        assert resp.get_json()["todo"]["done"] is True
 
     def test_toggle_other_user_todo_denied(self, client, user, other_user, db):
         todo = Todo(title="Bob's", author="bob", user_id=other_user.id)
         db.session.add(todo)
         db.session.commit()
         login(client, "alice", "password123")
-        client.get(f"/toggle/{todo.id}")
+        resp = client.patch(f"/api/todos/{todo.id}/toggle")
+        assert resp.status_code == 403
         todo = Todo.query.first()
         assert todo.done is False
 
@@ -78,14 +71,14 @@ class TestTodoToggle:
         db.session.add(todo)
         db.session.commit()
         login(client)
-        client.get(f"/toggle/{todo.id}")
-        todo = Todo.query.first()
-        assert todo.done is True
+        resp = client.patch(f"/api/todos/{todo.id}/toggle")
+        assert resp.status_code == 200
+        assert resp.get_json()["todo"]["done"] is True
 
     def test_toggle_nonexistent(self, client, user):
         login(client)
-        resp = client.get("/toggle/999", follow_redirects=True)
-        assert resp.status_code == 200
+        resp = client.patch("/api/todos/999/toggle")
+        assert resp.status_code == 404
 
 
 class TestTodoDelete:
@@ -93,15 +86,15 @@ class TestTodoDelete:
         todo = Todo(title="Test", author="x")
         db.session.add(todo)
         db.session.commit()
-        resp = client.get(f"/delete/{todo.id}")
-        assert resp.status_code == 302
-        assert "/login" in resp.headers["Location"]
+        resp = client.delete(f"/api/todos/{todo.id}")
+        assert resp.status_code == 401
 
     def test_delete_own_todo(self, client, user):
         login(client)
-        client.post("/add", data={"title": "Delete me"})
+        client.post("/api/todos", json={"title": "Delete me"})
         todo = Todo.query.first()
-        client.get(f"/delete/{todo.id}")
+        resp = client.delete(f"/api/todos/{todo.id}")
+        assert resp.status_code == 200
         assert Todo.query.count() == 0
 
     def test_delete_other_user_todo_denied(self, client, user, other_user, db):
@@ -109,7 +102,8 @@ class TestTodoDelete:
         db.session.add(todo)
         db.session.commit()
         login(client, "alice", "password123")
-        client.get(f"/delete/{todo.id}")
+        resp = client.delete(f"/api/todos/{todo.id}")
+        assert resp.status_code == 403
         assert Todo.query.count() == 1
 
     def test_delete_legacy_todo_allowed(self, client, user, db):
@@ -117,10 +111,11 @@ class TestTodoDelete:
         db.session.add(todo)
         db.session.commit()
         login(client)
-        client.get(f"/delete/{todo.id}")
+        resp = client.delete(f"/api/todos/{todo.id}")
+        assert resp.status_code == 200
         assert Todo.query.count() == 0
 
     def test_delete_nonexistent(self, client, user):
         login(client)
-        resp = client.get("/delete/999", follow_redirects=True)
-        assert resp.status_code == 200
+        resp = client.delete("/api/todos/999")
+        assert resp.status_code == 404
