@@ -13,7 +13,6 @@ bp = Blueprint("articles", __name__, url_prefix="/api/articles")
 def _parse_tags(tags_raw):
     return [t.strip() for t in tags_raw.split(",") if t.strip()]
 
-
 def _resolve_tags(tag_names):
     tags = []
     for name in tag_names:
