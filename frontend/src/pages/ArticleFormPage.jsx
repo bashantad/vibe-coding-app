@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import { get, post, put } from '../api';
 import { useAuth } from '../context/AuthContext';
 import FlashMessage from '../components/FlashMessage';
@@ -47,42 +52,46 @@ export default function ArticleFormPage() {
   }
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-8">
-        <h2>{isEdit ? 'Edit Article' : 'New Article'}</h2>
-        <FlashMessage message={error} onDismiss={() => setError('')} />
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Title</label>
-            <input
-              className="form-control"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Description</label>
-            <textarea
-              className="form-control"
-              rows="5"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Tags (comma separated)</label>
-            <input
-              className="form-control"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            {isEdit ? 'Update' : 'Create'}
-          </button>
-        </form>
-      </div>
-    </div>
+    <Row className="justify-content-center">
+      <Col md={8}>
+        <Card className="shadow-sm">
+          <Card.Header as="h2" className="text-center">
+            {isEdit ? 'Edit Article' : 'New Article'}
+          </Card.Header>
+          <Card.Body>
+            <FlashMessage message={error} onDismiss={() => setError('')} />
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="articleTitle">
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="articleDescription">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="articleTags">
+                <Form.Label>Tags (comma separated)</Form.Label>
+                <Form.Control
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                />
+              </Form.Group>
+              <Button type="submit" variant="primary">
+                {isEdit ? 'Update' : 'Create'}
+              </Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
   );
 }

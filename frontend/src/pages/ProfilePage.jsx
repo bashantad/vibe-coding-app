@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import { get, put } from '../api';
 import { useAuth } from '../context/AuthContext';
 import FlashMessage from '../components/FlashMessage';
@@ -47,41 +52,42 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-6">
-        <h2>Edit Profile</h2>
-        <FlashMessage message={error} onDismiss={() => setError('')} />
-        <FlashMessage message={success} variant="success" onDismiss={() => setSuccess('')} />
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Username</label>
-            <input
-              className="form-control"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Full Name</label>
-            <input
-              className="form-control"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">Save</button>
-        </form>
-      </div>
-    </div>
+    <Row className="justify-content-center">
+      <Col md={6}>
+        <Card className="shadow-sm">
+          <Card.Header as="h2" className="text-center">Edit Profile</Card.Header>
+          <Card.Body>
+            <FlashMessage message={error} onDismiss={() => setError('')} />
+            <FlashMessage message={success} variant="success" onDismiss={() => setSuccess('')} />
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="profileUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="profileFullName">
+                <Form.Label>Full Name</Form.Label>
+                <Form.Control
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="profileEmail">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </Form.Group>
+              <Button type="submit" variant="primary">Save</Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
   );
 }

@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
+import Container from 'react-bootstrap/Container';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar() {
+export default function AppNavbar() {
   const { user, logout } = useAuth();
 
   async function handleLogout(e) {
@@ -10,39 +13,30 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="navbar navbar-expand navbar-dark bg-dark">
-      <div className="container">
-        <Link className="navbar-brand" to="/">Todo App</Link>
-        <ul className="navbar-nav me-auto">
-          <li className="nav-item">
-            <Link className="nav-link" to="/">Todos</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/articles">Articles</Link>
-          </li>
-        </ul>
-        <ul className="navbar-nav">
-          {user ? (
-            <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/profile">{user.username}</Link>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#" onClick={handleLogout}>Logout</a>
-              </li>
-            </>
-          ) : (
-            <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/login">Login</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/signup">Sign Up</Link>
-              </li>
-            </>
-          )}
-        </ul>
-      </div>
-    </nav>
+    <Navbar bg="dark" variant="dark" expand="sm">
+      <Container>
+        <Navbar.Brand as={Link} to="/">Todo App</Navbar.Brand>
+        <Navbar.Toggle aria-controls="main-nav" />
+        <Navbar.Collapse id="main-nav">
+          <Nav className="me-auto">
+            <Nav.Link as={Link} to="/">Todos</Nav.Link>
+            <Nav.Link as={Link} to="/articles">Articles</Nav.Link>
+          </Nav>
+          <Nav>
+            {user ? (
+              <>
+                <Nav.Link as={Link} to="/profile">{user.username}</Nav.Link>
+                <Nav.Link href="#" onClick={handleLogout}>Logout</Nav.Link>
+              </>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                <Nav.Link as={Link} to="/signup">Sign Up</Nav.Link>
+              </>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 }

@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import Container from 'react-bootstrap/Container';
+import AppNavbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import TodosPage from './pages/TodosPage';
@@ -11,8 +12,8 @@ import ArticleFormPage from './pages/ArticleFormPage';
 export default function App() {
   return (
     <>
-      <Navbar />
-      <div className="container mt-4">
+      <AppNavbar />
+      <Container className="mt-4">
         <Routes>
           <Route path="/" element={<TodosPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -23,7 +24,7 @@ export default function App() {
           <Route path="/articles/edit/:id" element={<ArticleFormPage />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />
         </Routes>
-      </div>
+      </Container>
     </>
   );
 }

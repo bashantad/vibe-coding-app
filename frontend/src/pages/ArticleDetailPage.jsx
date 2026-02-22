@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import Card from 'react-bootstrap/Card';
+import Badge from 'react-bootstrap/Badge';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 import { get, post, del } from '../api';
 import { useAuth } from '../context/AuthContext';
 import FlashMessage from '../components/FlashMessage';
@@ -40,61 +45,73 @@ export default function ArticleDetailPage() {
   }
 
   if (!article) {
-    return <p>Loading...</p>;
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
   }
 
   return (
     <>
-      <h2>{article.title}</h2>
-      <p className="text-muted">by {article.author}</p>
-      {article.tags.length > 0 && (
-        <p>
-          {article.tags.map((tag) => (
-            <span key={tag} className="badge bg-secondary me-1">{tag}</span>
-          ))}
-        </p>
-      )}
-      <p>{article.description}</p>
+      <Card className="mb-4 shadow-sm">
+        <Card.Header as="h2">{article.title}</Card.Header>
+        <Card.Body>
+          <p className="text-muted">by {article.author}</p>
+          {article.tags.length > 0 && (
+            <p>
+              {article.tags.map((tag) => (
+                <Badge key={tag} bg="secondary" className="me-1">{tag}</Badge>
+              ))}
+            </p>
+          )}
+          <p>{article.description}</p>
+        </Card.Body>
+      </Card>
 
-      <hr />
       <h4>Comments</h4>
       <FlashMessage message={error} onDismiss={() => setError('')} />
 
       {article.comments.map((c) => (
-        <div key={c.id} className="card mb-2">
-          <div className="card-body d-flex justify-content-between">
+        <Card key={c.id} className="mb-2">
+          <Card.Body className="d-flex justify-content-between">
             <div>
               <strong>{c.author}</strong>: {c.description}
             </div>
             {user && (user.id === c.user_id || (!c.user_id)) && (
-              <button
-                className="btn btn-sm btn-outline-danger"
+              <Button
+                size="sm"
+                variant="outline-danger"
                 onClick={() => handleDeleteComment(c.id)}
               >
                 Delete
-              </button>
+              </Button>
             )}
-          </div>
-        </div>
+          </Card.Body>
+        </Card>
       ))}
 
       {user && (
-        <form onSubmit={handleAddComment} className="mt-3">
-          <div className="mb-3">
-            <label className="form-label">Add Comment</label>
-            <textarea
-              className="form-control"
-              rows="2"
+        <Form onSubmit={handleAddComment} className="mt-3">
+          <Form.Group className="mb-3" controlId="addComment">
+            <Form.Label>Add Comment</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={2}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               required
             />
-          </div>
-          <button type="submit" className="btn btn-primary">Submit</button>
-        </form>
+          </Form.Group>
+          <Button type="submit" variant="primary">Submit</Button>
+        </Form>
       )}
 
-      <Link to="/articles" className="btn btn-outline-secondary mt-3">Back to Articles</Link>
+      <Button as={Link} to="/articles" variant="outline-secondary" className="mt-3">
+        Back to Articles
+      </Button>
     </>
   );
 }

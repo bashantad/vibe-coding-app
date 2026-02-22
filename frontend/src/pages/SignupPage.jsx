@@ -1,5 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import { useAuth } from '../context/AuthContext';
 import FlashMessage from '../components/FlashMessage';
 
@@ -22,36 +27,38 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-6">
-        <h2>Sign Up</h2>
-        <FlashMessage message={error} onDismiss={() => setError('')} />
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Username</label>
-            <input
-              className="form-control"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">Sign Up</button>
-        </form>
-        <p className="mt-3">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </div>
-    </div>
+    <Row className="justify-content-center">
+      <Col md={6}>
+        <Card className="shadow-sm">
+          <Card.Header as="h2" className="text-center">Sign Up</Card.Header>
+          <Card.Body>
+            <FlashMessage message={error} onDismiss={() => setError('')} />
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="signupUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="signupPassword">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Button type="submit" variant="primary">Sign Up</Button>
+            </Form>
+            <p className="mt-3">
+              Already have an account? <Link to="/login">Login</Link>
+            </p>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
   );
 }

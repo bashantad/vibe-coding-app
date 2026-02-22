@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
 import { get, del } from '../api';
 import { useAuth } from '../context/AuthContext';
 
@@ -26,46 +29,54 @@ export default function ArticlesPage() {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Articles</h2>
         {user && (
-          <Link to="/articles/new" className="btn btn-primary">+ New Article</Link>
+          <Button as={Link} to="/articles/new" variant="primary">+ New Article</Button>
         )}
       </div>
-      <div className="list-group">
+      <ListGroup>
         {articles.map((art) => (
-          <div key={art.id} className="list-group-item">
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <Link to={`/articles/${art.id}`}>
-                  <strong>{art.title}</strong>
-                </Link>
-                <small className="text-muted ms-2">by {art.author}</small>
-                {art.tags.length > 0 && (
-                  <span className="ms-2">
-                    {art.tags.map((tag) => (
-                      <span key={tag} className="badge bg-secondary me-1">{tag}</span>
-                    ))}
-                  </span>
-                )}
-              </div>
-              {user && user.id === art.user_id && (
-                <span>
-                  <Link to={`/articles/edit/${art.id}`} className="btn btn-sm btn-outline-primary me-1">
-                    Edit
-                  </Link>
-                  <button
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() => handleDelete(art.id)}
-                  >
-                    Delete
-                  </button>
+          <ListGroup.Item
+            key={art.id}
+            className="d-flex justify-content-between align-items-center"
+          >
+            <div>
+              <Link to={`/articles/${art.id}`}>
+                <strong>{art.title}</strong>
+              </Link>
+              <small className="text-muted ms-2">by {art.author}</small>
+              {art.tags.length > 0 && (
+                <span className="ms-2">
+                  {art.tags.map((tag) => (
+                    <Badge key={tag} bg="secondary" className="me-1">{tag}</Badge>
+                  ))}
                 </span>
               )}
             </div>
-          </div>
+            {user && user.id === art.user_id && (
+              <span>
+                <Button
+                  as={Link}
+                  to={`/articles/edit/${art.id}`}
+                  size="sm"
+                  variant="outline-primary"
+                  className="me-1"
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={() => handleDelete(art.id)}
+                >
+                  Delete
+                </Button>
+              </span>
+            )}
+          </ListGroup.Item>
         ))}
         {articles.length === 0 && (
-          <div className="list-group-item text-muted">No articles yet.</div>
+          <ListGroup.Item className="text-muted">No articles yet.</ListGroup.Item>
         )}
-      </div>
+      </ListGroup>
     </>
   );
 }
