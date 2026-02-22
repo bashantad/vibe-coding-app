@@ -41,6 +41,7 @@ def _article_dict(article, include_comments=False):
                 "description": c.description,
                 "article_id": c.article_id,
                 "user_id": c.user_id,
+                "parent_id": c.parent_id,
             }
             for c in article.comments
         ]

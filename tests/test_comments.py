@@ -109,3 +109,92 @@ class TestCommentDelete:
         login(client)
         resp = client.delete(f"/api/articles/{art.id}/comments/999")
         assert resp.status_code == 404
+
+    def test_delete_parent_cascades_to_replies(self, client, user, db):
+        art = _create_article(db, user)
+        parent = Comment(author="alice", description="Parent", article_id=art.id, user_id=user.id)
+        db.session.add(parent)
+        db.session.commit()
+        reply = Comment(
+            author="alice", description="Reply", article_id=art.id,
+            user_id=user.id, parent_id=parent.id,
+        )
+        db.session.add(reply)
+        db.session.commit()
+        assert Comment.query.count() == 2
+        login(client)
+        resp = client.delete(f"/api/articles/{art.id}/comments/{parent.id}")
+        assert resp.status_code == 200
+        assert Comment.query.count() == 0
+
+
+class TestCommentReplies:
+    def test_reply_creates_child_with_parent_id(self, client, user, db):
+        art = _create_article(db, user)
+        parent = Comment(author="alice", description="Parent", article_id=art.id, user_id=user.id)
+        db.session.add(parent)
+        db.session.commit()
+        login(client)
+        resp = client.post(
+            f"/api/articles/{art.id}/comments",
+            json={"description": "A reply", "parent_id": parent.id},
+        )
+        assert resp.status_code == 201
+        reply = resp.get_json()["comment"]
+        assert reply["parent_id"] == parent.id
+        assert reply["article_id"] == art.id
+
+    def test_top_level_comment_has_null_parent_id(self, client, user, db):
+        art = _create_article(db, user)
+        login(client)
+        resp = client.post(
+            f"/api/articles/{art.id}/comments",
+            json={"description": "Top-level"},
+        )
+        assert resp.status_code == 201
+        comment = resp.get_json()["comment"]
+        assert comment["parent_id"] is None
+
+    def test_reply_to_nonexistent_parent_returns_404(self, client, user, db):
+        art = _create_article(db, user)
+        login(client)
+        resp = client.post(
+            f"/api/articles/{art.id}/comments",
+            json={"description": "Orphan reply", "parent_id": 999},
+        )
+        assert resp.status_code == 404
+
+    def test_reply_to_comment_on_different_article_returns_404(self, client, user, db):
+        art1 = _create_article(db, user)
+        art2 = Article(title="Other Article", author="alice", user_id=user.id)
+        db.session.add(art2)
+        db.session.commit()
+        comment_on_art2 = Comment(
+            author="alice", description="On art2", article_id=art2.id, user_id=user.id,
+        )
+        db.session.add(comment_on_art2)
+        db.session.commit()
+        login(client)
+        resp = client.post(
+            f"/api/articles/{art1.id}/comments",
+            json={"description": "Cross-article reply", "parent_id": comment_on_art2.id},
+        )
+        assert resp.status_code == 404
+
+    def test_article_detail_includes_parent_id(self, client, user, db):
+        art = _create_article(db, user)
+        parent = Comment(author="alice", description="Parent", article_id=art.id, user_id=user.id)
+        db.session.add(parent)
+        db.session.commit()
+        reply = Comment(
+            author="alice", description="Reply", article_id=art.id,
+            user_id=user.id, parent_id=parent.id,
+        )
+        db.session.add(reply)
+        db.session.commit()
+        resp = client.get(f"/api/articles/{art.id}")
+        assert resp.status_code == 200
+        comments = resp.get_json()["article"]["comments"]
+        by_id = {c["id"]: c for c in comments}
+        assert by_id[parent.id]["parent_id"] is None
+        assert by_id[reply.id]["parent_id"] == parent.id

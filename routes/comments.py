@@ -20,11 +20,17 @@ def add(article_id):
     description = data.get("description", "").strip()
     if not description:
         return jsonify({"error": "Description is required."}), 400
+    parent_id = data.get("parent_id")
+    if parent_id is not None:
+        parent = db.session.get(Comment, parent_id)
+        if not parent or parent.article_id != article_id:
+            return jsonify({"error": "Parent comment not found."}), 404
     comment = Comment(
         author=current_user.username,
         description=description,
         article_id=article_id,
         user_id=current_user.id,
+        parent_id=parent_id,
     )
     db.session.add(comment)
     db.session.commit()
@@ -36,6 +42,7 @@ def add(article_id):
             "description": comment.description,
             "article_id": comment.article_id,
             "user_id": comment.user_id,
+            "parent_id": comment.parent_id,
         }
     }), 201
 

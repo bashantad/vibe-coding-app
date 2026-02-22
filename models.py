@@ -64,5 +64,12 @@ class Comment(db.Model):
     description = db.Column(db.Text, nullable=False)
     article_id = db.Column(db.Integer, db.ForeignKey("article.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey("comment.id"), nullable=True)
 
     user = db.relationship("User", backref="comments", lazy=True)
+    replies = db.relationship(
+        "Comment",
+        backref=db.backref("parent", remote_side="Comment.id"),
+        cascade="all, delete-orphan",
+        lazy=True,
+    )
