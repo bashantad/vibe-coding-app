@@ -1,8 +1,11 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const isTest = process.env.NODE_ENV === 'test';
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react({ fastRefresh: !isTest })],
   server: {
     proxy: {
       '/api': {
@@ -10,5 +13,12 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+    css: false,
+    clearMocks: true,
   },
 })
