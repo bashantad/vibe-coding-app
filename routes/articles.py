@@ -3,7 +3,7 @@ import logging
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from models import db, Article, Tag
+from models import db, Article, Tag, Category
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +32,8 @@ def _article_dict(article, include_comments=False):
         "author": article.author,
         "user_id": article.user_id,
         "tags": article.tags,
+        "category_id": article.category_id,
+        "category": article.category.name if article.category else None,
     }
     if include_comments:
         d["comments"] = [
@@ -63,12 +65,16 @@ def add():
     if not title:
         return jsonify({"error": "Title is required."}), 400
     tag_names = _parse_tags(data.get("tags", ""))
+    category_id = data.get("category_id") or None
+    if category_id and not db.session.get(Category, category_id):
+        return jsonify({"error": "Invalid category."}), 400
     article = Article(
         title=title,
         description=description,
         author=current_user.username,
         user_id=current_user.id,
         tag_objects=_resolve_tags(tag_names),
+        category_id=category_id,
     )
     db.session.add(article)
     db.session.commit()
@@ -96,9 +102,13 @@ def update(article_id):
     title = data.get("title", "").strip()
     if not title:
         return jsonify({"error": "Title is required."}), 400
+    category_id = data.get("category_id") or None
+    if category_id and not db.session.get(Category, category_id):
+        return jsonify({"error": "Invalid category."}), 400
     article.title = title
     article.description = data.get("description", "").strip()
     article.tag_objects = _resolve_tags(_parse_tags(data.get("tags", "")))
+    article.category_id = category_id
     db.session.commit()
     logger.info("Updated article %d: %s", article_id, title)
     return jsonify({"article": _article_dict(article)}), 200

@@ -63,6 +63,11 @@ export default function ArticleDetailPage() {
         <Card.Header as="h2">{article.title}</Card.Header>
         <Card.Body>
           <p className="text-muted">by {article.author}</p>
+          {article.category && (
+            <p>
+              <Badge bg="primary">{article.category}</Badge>
+            </p>
+          )}
           {article.tags.length > 0 && (
             <p>
               {article.tags.map((tag) => (

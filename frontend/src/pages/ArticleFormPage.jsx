@@ -15,6 +15,8 @@ export default function ArticleFormPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [categories, setCategories] = useState([]);
   const [error, setError] = useState('');
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -24,6 +26,13 @@ export default function ArticleFormPage() {
       navigate('/login');
       return;
     }
+
+    async function loadCategories() {
+      const { res, data } = await get('/api/categories');
+      if (res.ok) setCategories(data.categories);
+    }
+    loadCategories();
+
     if (isEdit) {
       async function load() {
         const { res, data } = await get(`/api/articles/${id}`);
@@ -31,6 +40,7 @@ export default function ArticleFormPage() {
           setTitle(data.article.title);
           setDescription(data.article.description);
           setTags(data.article.tags.join(', '));
+          setCategoryId(data.article.category_id ?? '');
         }
       }
       load();
@@ -40,7 +50,7 @@ export default function ArticleFormPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-    const body = { title, description, tags };
+    const body = { title, description, tags, category_id: categoryId || null };
     const { res, data } = isEdit
       ? await put(`/api/articles/${id}`, body)
       : await post('/api/articles', body);
@@ -68,6 +78,18 @@ export default function ArticleFormPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                 />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="articleCategory">
+                <Form.Label>Category</Form.Label>
+                <Form.Select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                >
+                  <option value="">-- No category --</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </Form.Select>
               </Form.Group>
               <Form.Group className="mb-3" controlId="articleDescription">
                 <Form.Label>Description</Form.Label>

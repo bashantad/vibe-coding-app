@@ -35,6 +35,11 @@ class Todo(db.Model):
     user = db.relationship("User", backref="todos", lazy=True)
 
 
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, nullable=False)
+
+
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
@@ -46,8 +51,10 @@ class Article(db.Model):
     description = db.Column(db.Text, default="")
     author = db.Column(db.String(128), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=True)
 
     user = db.relationship("User", backref="articles", lazy=True)
+    category = db.relationship("Category", backref="articles", lazy=True)
     comments = db.relationship(
         "Comment", backref="article", cascade="all, delete-orphan", lazy=True
     )
