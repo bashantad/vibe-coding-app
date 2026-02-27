@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import ArticleFormPage from './pages/ArticleFormPage';
+import ChatbotPage from './pages/ChatbotPage';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/articles/new" element={<ArticleFormPage />} />
           <Route path="/articles/edit/:id" element={<ArticleFormPage />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />
+          <Route path="/chatbot" element={<ChatbotPage />} />
         </Routes>
       </Container>
     </>

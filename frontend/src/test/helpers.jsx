@@ -79,6 +79,16 @@ export function createMockTodo(overrides = {}) {
   };
 }
 
+export function createMockChatMessage(overrides = {}) {
+  return {
+    id: 1,
+    role: 'user',
+    content: 'How do I start a presentation?',
+    created_at: '2025-01-01T00:00:00',
+    ...overrides,
+  };
+}
+
 export function LocationDisplay() {
   const location = useLocation();
   return <div data-testid="location">{location.pathname}</div>;
