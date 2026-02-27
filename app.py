@@ -53,6 +53,8 @@ FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_react(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "Not found"}), 404
     full = os.path.join(FRONTEND_DIST, path)
     if path and os.path.isfile(full):
         return send_from_directory(FRONTEND_DIST, path)
