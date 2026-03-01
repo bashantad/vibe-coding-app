@@ -89,6 +89,22 @@ export function createMockChatMessage(overrides = {}) {
   };
 }
 
+export function createMockFeedPost(overrides = {}) {
+  return {
+    title: 'Test Reddit Post',
+    url: 'https://example.com',
+    permalink: '/r/leadership/comments/abc/test/',
+    subreddit: 'leadership',
+    author: 'reddituser',
+    score: 42,
+    num_comments: 10,
+    created_utc: Math.floor(Date.now() / 1000) - 3600,
+    thumbnail: '',
+    selftext: '',
+    ...overrides,
+  };
+}
+
 export function LocationDisplay() {
   const location = useLocation();
   return <div data-testid="location">{location.pathname}</div>;
