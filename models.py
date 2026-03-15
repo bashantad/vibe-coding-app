@@ -93,6 +93,17 @@ class Bookmark(db.Model):
     user = db.relationship("User", backref="bookmarks", lazy=True)
 
 
+class ShortUrl(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    short_code = db.Column(db.String(10), unique=True, nullable=False)
+    original_url = db.Column(db.String(2048), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    click_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    user = db.relationship("User", backref="short_urls", lazy=True)
+
+
 class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)

@@ -24,6 +24,7 @@ export default function AppNavbar() {
             <Nav.Link as={Link} to="/chatbot">Chatbot</Nav.Link>
             <Nav.Link as={Link} to="/feeds">Feeds</Nav.Link>
             <Nav.Link as={Link} to="/bookmarks">Bookmarks</Nav.Link>
+            <Nav.Link as={Link} to="/shortener">Shortener</Nav.Link>
           </Nav>
           <Nav>
             {user ? (

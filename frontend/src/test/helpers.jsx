@@ -117,6 +117,19 @@ export function createMockBookmark(overrides = {}) {
   };
 }
 
+export function createMockShortUrl(overrides = {}) {
+  return {
+    id: 1,
+    short_code: 'abc123',
+    original_url: 'https://example.com',
+    short_url: '/s/abc123',
+    click_count: 0,
+    user_id: 1,
+    created_at: '2025-01-01T00:00:00',
+    ...overrides,
+  };
+}
+
 export function LocationDisplay() {
   const location = useLocation();
   return <div data-testid="location">{location.pathname}</div>;
