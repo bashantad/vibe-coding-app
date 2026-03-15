@@ -42,6 +42,7 @@ from routes.comments import bp as comments_bp
 from routes.categories import bp as categories_bp
 from routes.chat import bp as chat_bp
 from routes.feeds import bp as feeds_bp
+from routes.bookmarks import bp as bookmarks_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(todos_bp)
@@ -50,6 +51,7 @@ app.register_blueprint(comments_bp)
 app.register_blueprint(categories_bp)
 app.register_blueprint(chat_bp)
 app.register_blueprint(feeds_bp)
+app.register_blueprint(bookmarks_bp)
 
 FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 

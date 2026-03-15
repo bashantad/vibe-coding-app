@@ -82,6 +82,17 @@ class Comment(db.Model):
     )
 
 
+class Bookmark(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(2048), nullable=False)
+    title = db.Column(db.String(256), nullable=False)
+    description = db.Column(db.Text, default="")
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    user = db.relationship("User", backref="bookmarks", lazy=True)
+
+
 class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)

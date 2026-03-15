@@ -105,6 +105,18 @@ export function createMockFeedPost(overrides = {}) {
   };
 }
 
+export function createMockBookmark(overrides = {}) {
+  return {
+    id: 1,
+    url: 'https://example.com',
+    title: 'Example Bookmark',
+    description: 'A test bookmark',
+    user_id: 1,
+    created_at: '2025-01-01T00:00:00',
+    ...overrides,
+  };
+}
+
 export function LocationDisplay() {
   const location = useLocation();
   return <div data-testid="location">{location.pathname}</div>;
