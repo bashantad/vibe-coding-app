@@ -8,6 +8,10 @@ import { get, post, put } from '../../api';
 vi.mock('../../api');
 
 describe('ArticleFormPage', () => {
+  beforeEach(() => {
+    get.mockResolvedValue({ res: { ok: true }, data: { categories: [] } });
+  });
+
   it('redirects to /login when not authenticated', async () => {
     renderWithProviders(
       <Routes>
@@ -36,7 +40,10 @@ describe('ArticleFormPage', () => {
       description: 'Existing desc',
       tags: ['tag1', 'tag2'],
     });
-    get.mockResolvedValue({ res: { ok: true }, data: { article } });
+    get.mockImplementation((url) => {
+      if (url === '/api/categories') return Promise.resolve({ res: { ok: true }, data: { categories: [] } });
+      return Promise.resolve({ res: { ok: true }, data: { article } });
+    });
 
     renderWithProviders(<ArticleFormPage />, {
       route: '/articles/edit/1',
@@ -73,6 +80,7 @@ describe('ArticleFormPage', () => {
         title: 'New Post',
         description: 'Content here',
         tags: 'a,b',
+        category_id: null,
       });
       expect(screen.getByTestId('location')).toHaveTextContent('/articles');
     });
@@ -80,7 +88,10 @@ describe('ArticleFormPage', () => {
 
   it('updates article via PUT in edit mode', async () => {
     const article = createMockArticle({ title: 'Old', description: 'Old desc', tags: ['old'] });
-    get.mockResolvedValue({ res: { ok: true }, data: { article } });
+    get.mockImplementation((url) => {
+      if (url === '/api/categories') return Promise.resolve({ res: { ok: true }, data: { categories: [] } });
+      return Promise.resolve({ res: { ok: true }, data: { article } });
+    });
     put.mockResolvedValue({ res: { ok: true }, data: {} });
 
     renderWithProviders(
