@@ -8,7 +8,6 @@ import ProfilePage from './pages/ProfilePage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import ArticleFormPage from './pages/ArticleFormPage';
-import ChatbotPage from './pages/ChatbotPage';
 import FeedsPage from './pages/FeedsPage';
 import BookmarksPage from './pages/BookmarksPage';
 import ShortenerPage from './pages/ShortenerPage';
@@ -27,7 +26,6 @@ export default function App() {
           <Route path="/articles/new" element={<ArticleFormPage />} />
           <Route path="/articles/edit/:id" element={<ArticleFormPage />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />
-          <Route path="/chatbot" element={<ChatbotPage />} />
           <Route path="/feeds" element={<FeedsPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route path="/shortener" element={<ShortenerPage />} />
