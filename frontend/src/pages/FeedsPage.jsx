@@ -58,14 +58,16 @@ export default function FeedsPage() {
   const filtered = posts.filter((p) => activeSubreddits.has(p.subreddit));
 
   return (
-    <>
-      <h2 className="mb-3">Reddit Feeds</h2>
+    <div className="fade-in-up">
+      <div className="page-header">
+        <h2>Reddit Feeds</h2>
+        <p>Latest posts from your favorite subreddits</p>
+      </div>
 
-      <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
+      <div className="filter-bar">
         <Form.Select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          style={{ maxWidth: '160px' }}
           aria-label="Sort posts"
         >
           <option value="hot">Hot</option>
@@ -73,14 +75,13 @@ export default function FeedsPage() {
           <option value="top">Top</option>
         </Form.Select>
 
-        <div className="d-flex flex-wrap gap-1">
+        <div className="d-flex flex-wrap gap-2">
           {SUBREDDITS.map((sub) => (
             <Badge
               key={sub}
-              bg={activeSubreddits.has(sub) ? 'primary' : 'secondary'}
+              className={`badge-filter ${activeSubreddits.has(sub) ? 'active' : 'inactive'}`}
               role="button"
               onClick={() => toggleSubreddit(sub)}
-              style={{ cursor: 'pointer' }}
             >
               r/{sub}
             </Badge>
@@ -89,7 +90,7 @@ export default function FeedsPage() {
       </div>
 
       {loading && (
-        <div className="text-center my-4">
+        <div className="loading-state">
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
@@ -99,21 +100,25 @@ export default function FeedsPage() {
       {error && <Alert variant="danger">{error}</Alert>}
 
       {!loading && !error && filtered.length === 0 && (
-        <p className="text-muted">No posts to display.</p>
+        <div className="empty-state">
+          <div className="empty-state-icon">&#128240;</div>
+          <h5>No posts to display</h5>
+          <p>Try selecting different subreddits or sorting options</p>
+        </div>
       )}
 
       <Row xs={1} md={2} lg={3} className="g-3">
         {filtered.map((post, idx) => (
           <Col key={idx}>
-            <Card className="h-100 shadow-sm">
+            <Card className="feed-card h-100">
               <Card.Body>
-                <div className="mb-2">
-                  <Badge bg="info" className="me-1">r/{post.subreddit}</Badge>
-                  <small className="text-muted">
-                    by {post.author} &middot; {timeAgo(post.created_utc)}
-                  </small>
+                <div className="d-flex align-items-center gap-2 mb-2">
+                  <Badge bg="info">r/{post.subreddit}</Badge>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>
+                    {timeAgo(post.created_utc)}
+                  </span>
                 </div>
-                <Card.Title className="fs-6">
+                <Card.Title>
                   <a
                     href={`https://www.reddit.com${post.permalink}`}
                     target="_blank"
@@ -123,19 +128,22 @@ export default function FeedsPage() {
                   </a>
                 </Card.Title>
                 {post.selftext && (
-                  <Card.Text className="small text-muted">
+                  <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', lineHeight: 1.5, marginBottom: 0 }}>
                     {post.selftext}
-                  </Card.Text>
+                  </p>
                 )}
               </Card.Body>
-              <Card.Footer className="d-flex justify-content-between small">
-                <span>Score: {post.score}</span>
-                <span>Comments: {post.num_comments}</span>
+              <Card.Footer className="d-flex justify-content-between align-items-center">
+                <span className="stat-pill">&#9650; {post.score}</span>
+                <span className="stat-pill">&#128172; {post.num_comments}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>
+                  {post.author}
+                </span>
               </Card.Footer>
             </Card>
           </Col>
         ))}
       </Row>
-    </>
+    </div>
   );
 }

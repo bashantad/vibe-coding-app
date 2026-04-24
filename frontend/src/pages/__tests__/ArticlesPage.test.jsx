@@ -8,17 +8,27 @@ vi.mock('../../api');
 
 describe('ArticlesPage', () => {
   beforeEach(() => {
-    get.mockResolvedValue({ data: { articles: [] } });
+    get.mockImplementation((url) => {
+      if (url === '/api/categories') {
+        return Promise.resolve({ res: { ok: true }, data: { categories: [] } });
+      }
+      return Promise.resolve({ data: { articles: [] } });
+    });
   });
 
   it('fetches and displays articles', async () => {
-    get.mockResolvedValue({
-      data: {
-        articles: [
-          createMockArticle({ id: 1, title: 'React Tips', tags: ['react'] }),
-          createMockArticle({ id: 2, title: 'Testing Guide', tags: ['testing', 'vitest'] }),
-        ],
-      },
+    get.mockImplementation((url) => {
+      if (url === '/api/categories') {
+        return Promise.resolve({ res: { ok: true }, data: { categories: [] } });
+      }
+      return Promise.resolve({
+        data: {
+          articles: [
+            createMockArticle({ id: 1, title: 'React Tips', tags: ['react'] }),
+            createMockArticle({ id: 2, title: 'Testing Guide', tags: ['testing', 'vitest'] }),
+          ],
+        },
+      });
     });
     renderWithProviders(<ArticlesPage />);
 
@@ -29,10 +39,15 @@ describe('ArticlesPage', () => {
   });
 
   it('displays tags as badges', async () => {
-    get.mockResolvedValue({
-      data: {
-        articles: [createMockArticle({ id: 1, tags: ['react', 'hooks'] })],
-      },
+    get.mockImplementation((url) => {
+      if (url === '/api/categories') {
+        return Promise.resolve({ res: { ok: true }, data: { categories: [] } });
+      }
+      return Promise.resolve({
+        data: {
+          articles: [createMockArticle({ id: 1, tags: ['react', 'hooks'] })],
+        },
+      });
     });
     renderWithProviders(<ArticlesPage />);
 
@@ -54,10 +69,15 @@ describe('ArticlesPage', () => {
 
   it('shows Edit/Delete for owned articles', async () => {
     const user = createMockUser({ id: 5 });
-    get.mockResolvedValue({
-      data: {
-        articles: [createMockArticle({ id: 1, user_id: 5 })],
-      },
+    get.mockImplementation((url) => {
+      if (url === '/api/categories') {
+        return Promise.resolve({ res: { ok: true }, data: { categories: [] } });
+      }
+      return Promise.resolve({
+        data: {
+          articles: [createMockArticle({ id: 1, user_id: 5 })],
+        },
+      });
     });
     renderWithProviders(<ArticlesPage />, { user });
 
@@ -70,10 +90,15 @@ describe('ArticlesPage', () => {
   it('deletes an article and refetches', async () => {
     del.mockResolvedValue({});
     const user = createMockUser({ id: 5 });
-    get.mockResolvedValue({
-      data: {
-        articles: [createMockArticle({ id: 10, user_id: 5 })],
-      },
+    get.mockImplementation((url) => {
+      if (url === '/api/categories') {
+        return Promise.resolve({ res: { ok: true }, data: { categories: [] } });
+      }
+      return Promise.resolve({
+        data: {
+          articles: [createMockArticle({ id: 10, user_id: 5 })],
+        },
+      });
     });
     renderWithProviders(<ArticlesPage />, { user });
 

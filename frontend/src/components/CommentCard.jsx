@@ -23,28 +23,30 @@ export default function CommentCard({ comment, depth, user, articleId, onDelete,
   const [replying, setReplying] = useState(false);
 
   return (
-    <div
-      className="mb-2"
-      style={depth > 0 ? {
-        marginLeft: depth * 32,
-        borderLeft: '3px solid #6c757d',
-        paddingLeft: 12,
-      } : undefined}
-    >
-      <Card className={depth > 0 ? 'border-0 bg-light' : ''}>
-        <Card.Body>
-          <div className="d-flex justify-content-between">
-            <div>
-              <strong>{comment.author}</strong>
-              {depth > 0 && <span className="text-muted ms-1" style={{ fontSize: '0.85em' }}>replied</span>}
-              : {comment.description}
+    <div className={depth > 0 ? 'comment-thread' : 'mb-2'}>
+      <Card className={`comment-card ${depth > 0 ? 'reply' : ''}`}>
+        <Card.Body style={{ padding: '0.875rem 1rem' }}>
+          <div className="d-flex justify-content-between align-items-start">
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="mb-1">
+                <strong style={{ fontSize: '0.875rem', color: 'var(--gray-900)' }}>
+                  {comment.author}
+                </strong>
+                {depth > 0 && (
+                  <span style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginLeft: '0.35rem' }}>
+                    replied
+                  </span>
+                )}
+              </div>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--gray-700)', lineHeight: 1.5 }}>
+                {comment.description}
+              </p>
             </div>
-            <div className="text-nowrap ms-2">
+            <div className="d-flex gap-1 ms-2 flex-shrink-0">
               {user && (
                 <Button
                   size="sm"
                   variant="outline-secondary"
-                  className="me-1"
                   onClick={() => setReplying(!replying)}
                 >
                   Reply

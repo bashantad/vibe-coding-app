@@ -45,43 +45,65 @@ export default function TodosPage() {
     fetchTodos();
   }
 
+  const doneCount = todos.filter((t) => t.done).length;
+
   return (
-    <>
-      <h2>Todo App</h2>
+    <div className="fade-in-up">
+      <div className="page-header d-flex justify-content-between align-items-end">
+        <div>
+          <h2>Todos</h2>
+          <p>Stay organized and get things done</p>
+        </div>
+        {todos.length > 0 && (
+          <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)' }}>
+            <span style={{ fontWeight: 600, color: 'var(--gray-700)' }}>{doneCount}</span>
+            {' / '}{todos.length} completed
+          </div>
+        )}
+      </div>
+
       <FlashMessage message={error} onDismiss={() => setError('')} />
+
       {user && (
-        <Form onSubmit={handleAdd} className="mb-3">
+        <Form onSubmit={handleAdd} className="mb-4">
           <InputGroup>
             <FormControl
               name="title"
-              placeholder="Add a new todo..."
+              placeholder="What needs to be done?"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              style={{ fontSize: '0.95rem' }}
             />
-            <Button type="submit" variant="primary">Add</Button>
+            <Button type="submit" variant="primary">Add Todo</Button>
           </InputGroup>
         </Form>
       )}
-      <ListGroup>
-        {todos.map((todo) => (
-          <ListGroup.Item
-            key={todo.id}
-            className="d-flex justify-content-between align-items-center"
-          >
-            <span style={{ textDecoration: todo.done ? 'line-through' : 'none' }}>
-              {todo.title} <small className="text-muted">by {todo.author}</small>
-            </span>
-            {user && (
-              <span>
-                <Button
-                  size="sm"
-                  variant="outline-success"
-                  className="me-1"
+
+      {todos.length > 0 ? (
+        <ListGroup>
+          {todos.map((todo) => (
+            <ListGroup.Item
+              key={todo.id}
+              className="d-flex align-items-center"
+              style={{ gap: '0.75rem' }}
+            >
+              {user && (
+                <div
+                  className={`todo-checkbox ${todo.done ? 'checked' : ''}`}
                   onClick={() => handleToggle(todo.id)}
-                >
-                  {todo.done ? 'Undo' : 'Done'}
-                </Button>
+                  role="button"
+                  tabIndex={0}
+                  aria-label={todo.done ? 'Mark undone' : 'Mark done'}
+                />
+              )}
+              <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                <span className={`todo-text ${todo.done ? 'done' : ''}`}>
+                  {todo.title}
+                </span>
+                <span className="todo-author d-block">by {todo.author}</span>
+              </div>
+              {user && (
                 <Button
                   size="sm"
                   variant="outline-danger"
@@ -89,14 +111,17 @@ export default function TodosPage() {
                 >
                   Delete
                 </Button>
-              </span>
-            )}
-          </ListGroup.Item>
-        ))}
-        {todos.length === 0 && (
-          <ListGroup.Item className="text-muted">No todos yet.</ListGroup.Item>
-        )}
-      </ListGroup>
-    </>
+              )}
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      ) : (
+        <div className="empty-state">
+          <div className="empty-state-icon">&#9744;</div>
+          <h5>No todos yet</h5>
+          <p>Add your first todo above to get started</p>
+        </div>
+      )}
+    </div>
   );
 }

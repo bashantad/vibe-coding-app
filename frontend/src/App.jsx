@@ -14,9 +14,9 @@ import ShortenerPage from './pages/ShortenerPage';
 
 export default function App() {
   return (
-    <>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <AppNavbar />
-      <Container className="mt-4">
+      <Container className="app-container flex-grow-1">
         <Routes>
           <Route path="/" element={<TodosPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -31,6 +31,6 @@ export default function App() {
           <Route path="/shortener" element={<ShortenerPage />} />
         </Routes>
       </Container>
-    </>
+    </div>
   );
 }

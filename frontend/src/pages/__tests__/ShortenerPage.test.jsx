@@ -39,7 +39,7 @@ describe('ShortenerPage', () => {
     renderWithProviders(<ShortenerPage />, { user: createMockUser() });
 
     await waitFor(() => {
-      expect(screen.getByText('No short URLs yet.')).toBeInTheDocument();
+      expect(screen.getByText('No short URLs yet')).toBeInTheDocument();
     });
   });
 
@@ -47,9 +47,9 @@ describe('ShortenerPage', () => {
     post.mockResolvedValue({ res: { ok: true }, data: {} });
     renderWithProviders(<ShortenerPage />, { user: createMockUser() });
 
-    await waitFor(() => expect(screen.getByPlaceholderText('Enter URL to shorten')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByPlaceholderText('Paste a long URL here...')).toBeInTheDocument());
 
-    await userEvent.type(screen.getByPlaceholderText('Enter URL to shorten'), 'https://example.com');
+    await userEvent.type(screen.getByPlaceholderText('Paste a long URL here...'), 'https://example.com');
     await userEvent.click(screen.getByText('Shorten'));
 
     await waitFor(() => {

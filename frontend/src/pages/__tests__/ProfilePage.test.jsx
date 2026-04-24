@@ -52,7 +52,7 @@ describe('ProfilePage', () => {
     await waitFor(() => expect(screen.getByDisplayValue('alice')).toBeInTheDocument());
 
     await userEvent.type(screen.getByLabelText('Full Name'), 'Alice Wonder');
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
     await waitFor(() => {
       expect(put).toHaveBeenCalledWith('/api/profile', expect.objectContaining({
@@ -76,7 +76,7 @@ describe('ProfilePage', () => {
     });
 
     await waitFor(() => expect(screen.getByDisplayValue('alice')).toBeInTheDocument());
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
     await waitFor(() => {
       expect(screen.getByText('Username taken')).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe('ProfilePage', () => {
     });
 
     await waitFor(() => expect(screen.getByDisplayValue('bob')).toBeInTheDocument());
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
     await waitFor(() => {
       expect(screen.getByText('Saved!')).toBeInTheDocument();

@@ -7,15 +7,15 @@ import { renderWithProviders, LocationDisplay } from '../../test/helpers';
 describe('SignupPage', () => {
   it('renders the signup form', () => {
     renderWithProviders(<SignupPage />);
-    expect(screen.getByText('Sign Up', { selector: 'h2' })).toBeInTheDocument();
+    expect(screen.getByText('Create account', { selector: 'h2' })).toBeInTheDocument();
     expect(screen.getByLabelText('Username')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign Up' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create Account' })).toBeInTheDocument();
   });
 
   it('shows link to login page', () => {
     renderWithProviders(<SignupPage />);
-    expect(screen.getByRole('link', { name: 'Login' })).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login');
   });
 
   it('navigates to / on successful signup', async () => {
@@ -33,7 +33,7 @@ describe('SignupPage', () => {
 
     await userEvent.type(screen.getByLabelText('Username'), 'newuser');
     await userEvent.type(screen.getByLabelText('Password'), 'pass123');
-    await userEvent.click(screen.getByRole('button', { name: 'Sign Up' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create Account' }));
 
     await waitFor(() => {
       expect(signup).toHaveBeenCalledWith('newuser', 'pass123');
@@ -47,7 +47,7 @@ describe('SignupPage', () => {
 
     await userEvent.type(screen.getByLabelText('Username'), 'existing');
     await userEvent.type(screen.getByLabelText('Password'), 'pass');
-    await userEvent.click(screen.getByRole('button', { name: 'Sign Up' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create Account' }));
 
     await waitFor(() => {
       expect(screen.getByText('Username taken')).toBeInTheDocument();

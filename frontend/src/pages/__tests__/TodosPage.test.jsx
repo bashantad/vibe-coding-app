@@ -32,17 +32,17 @@ describe('TodosPage', () => {
     renderWithProviders(<TodosPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('No todos yet.')).toBeInTheDocument();
+      expect(screen.getByText('No todos yet')).toBeInTheDocument();
     });
   });
 
   it('shows add form only for logged-in users', async () => {
     renderWithProviders(<TodosPage />);
-    expect(screen.queryByPlaceholderText('Add a new todo...')).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('What needs to be done?')).not.toBeInTheDocument();
 
     get.mockResolvedValue({ data: { todos: [] } });
     renderWithProviders(<TodosPage />, { user: createMockUser() });
-    expect(screen.getByPlaceholderText('Add a new todo...')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('What needs to be done?')).toBeInTheDocument();
   });
 
   it('adds a todo and refetches', async () => {
@@ -50,8 +50,8 @@ describe('TodosPage', () => {
     get.mockResolvedValue({ data: { todos: [] } });
     renderWithProviders(<TodosPage />, { user: createMockUser() });
 
-    await userEvent.type(screen.getByPlaceholderText('Add a new todo...'), 'New task');
-    await userEvent.click(screen.getByText('Add'));
+    await userEvent.type(screen.getByPlaceholderText('What needs to be done?'), 'New task');
+    await userEvent.click(screen.getByText('Add Todo'));
 
     await waitFor(() => {
       expect(post).toHaveBeenCalledWith('/api/todos', { title: 'New task' });
@@ -66,8 +66,9 @@ describe('TodosPage', () => {
     });
     renderWithProviders(<TodosPage />, { user: createMockUser() });
 
-    await waitFor(() => expect(screen.getByText('Done')).toBeInTheDocument());
-    await userEvent.click(screen.getByText('Done'));
+    await waitFor(() => expect(screen.getByText(/Test todo/)).toBeInTheDocument());
+    const checkbox = screen.getByRole('button', { name: 'Mark done' });
+    await userEvent.click(checkbox);
 
     await waitFor(() => {
       expect(patch).toHaveBeenCalledWith('/api/todos/3/toggle');

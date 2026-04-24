@@ -38,7 +38,7 @@ describe('BookmarksPage', () => {
     renderWithProviders(<BookmarksPage />, { user: createMockUser() });
 
     await waitFor(() => {
-      expect(screen.getByText('No bookmarks yet.')).toBeInTheDocument();
+      expect(screen.getByText('No bookmarks yet')).toBeInTheDocument();
     });
   });
 
@@ -46,11 +46,11 @@ describe('BookmarksPage', () => {
     post.mockResolvedValue({ res: { ok: true }, data: {} });
     renderWithProviders(<BookmarksPage />, { user: createMockUser() });
 
-    await waitFor(() => expect(screen.getByPlaceholderText('URL')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByPlaceholderText('https://example.com')).toBeInTheDocument());
 
-    await userEvent.type(screen.getByPlaceholderText('URL'), 'https://example.com');
+    await userEvent.type(screen.getByPlaceholderText('https://example.com'), 'https://example.com');
     await userEvent.type(screen.getByPlaceholderText('Title'), 'Example');
-    await userEvent.click(screen.getByText('Save Bookmark'));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       expect(post).toHaveBeenCalledWith('/api/bookmarks', {

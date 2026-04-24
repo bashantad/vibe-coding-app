@@ -52,10 +52,13 @@ export default function ProfilePage() {
   }
 
   return (
-    <Row className="justify-content-center">
-      <Col md={6}>
-        <Card className="shadow-sm">
-          <Card.Header as="h2" className="text-center">Edit Profile</Card.Header>
+    <Row className="justify-content-center fade-in-up" style={{ marginTop: '2rem' }}>
+      <Col md={6} lg={5}>
+        <Card className="auth-card">
+          <Card.Header>
+            <h2>Your Profile</h2>
+            <p>Manage your account details</p>
+          </Card.Header>
           <Card.Body>
             <FlashMessage message={error} onDismiss={() => setError('')} />
             <FlashMessage message={success} variant="success" onDismiss={() => setSuccess('')} />
@@ -73,17 +76,21 @@ export default function ProfilePage() {
                 <Form.Control
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Your full name"
                 />
               </Form.Group>
-              <Form.Group className="mb-3" controlId="profileEmail">
+              <Form.Group className="mb-4" controlId="profileEmail">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
                 />
               </Form.Group>
-              <Button type="submit" variant="primary">Save</Button>
+              <Button type="submit" variant="primary" className="w-100 btn-lg">
+                Save Changes
+              </Button>
             </Form>
           </Card.Body>
         </Card>

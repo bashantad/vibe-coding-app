@@ -65,7 +65,7 @@ describe('ArticleDetailPage', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Add Comment')).toBeInTheDocument();
+      expect(screen.getByLabelText('Add a comment')).toBeInTheDocument();
     });
   });
 
@@ -77,9 +77,9 @@ describe('ArticleDetailPage', () => {
       user: createMockUser(),
     });
 
-    await waitFor(() => expect(screen.getByLabelText('Add Comment')).toBeInTheDocument());
-    await userEvent.type(screen.getByLabelText('Add Comment'), 'Nice article');
-    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    await waitFor(() => expect(screen.getByLabelText('Add a comment')).toBeInTheDocument());
+    await userEvent.type(screen.getByLabelText('Add a comment'), 'Nice article');
+    await userEvent.click(screen.getByRole('button', { name: 'Post Comment' }));
 
     await waitFor(() => {
       expect(post).toHaveBeenCalledWith('/api/articles/1/comments', {

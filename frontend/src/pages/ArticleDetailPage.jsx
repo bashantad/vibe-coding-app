@@ -47,7 +47,7 @@ export default function ArticleDetailPage() {
 
   if (!article) {
     return (
-      <div className="text-center mt-5">
+      <div className="loading-state">
         <Spinner animation="border" role="status">
           <span className="visually-hidden">Loading...</span>
         </Spinner>
@@ -58,61 +58,78 @@ export default function ArticleDetailPage() {
   const tree = buildCommentTree(article.comments);
 
   return (
-    <>
-      <Card className="mb-4 shadow-sm">
-        <Card.Header as="h2">{article.title}</Card.Header>
-        <Card.Body>
-          <p className="text-muted">by {article.author}</p>
-          {article.category && (
-            <p>
+    <div className="fade-in-up">
+      <Link
+        to="/articles"
+        className="d-inline-flex align-items-center mb-3"
+        style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--gray-500)' }}
+      >
+        &#8592; Back to Articles
+      </Link>
+
+      <Card className="mb-4" style={{ borderRadius: 'var(--radius-xl)' }}>
+        <Card.Body style={{ padding: '2rem' }}>
+          <h2 style={{ marginBottom: '0.5rem' }}>{article.title}</h2>
+          <div className="d-flex flex-wrap align-items-center gap-2 mb-3" style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>
+            <span>by <strong style={{ color: 'var(--gray-700)' }}>{article.author}</strong></span>
+            {article.category && (
               <Badge bg="primary">{article.category}</Badge>
-            </p>
-          )}
-          {article.tags.length > 0 && (
-            <p>
-              {article.tags.map((tag) => (
-                <Badge key={tag} bg="secondary" className="me-1">{tag}</Badge>
-              ))}
-            </p>
-          )}
-          <p>{article.description}</p>
+            )}
+            {article.tags.map((tag) => (
+              <Badge key={tag} bg="secondary">{tag}</Badge>
+            ))}
+          </div>
+          <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: 'var(--gray-700)' }}>
+            {article.description}
+          </p>
         </Card.Body>
       </Card>
 
-      <h4>Comments</h4>
+      <div className="d-flex align-items-center gap-2 mb-3">
+        <h4 style={{ margin: 0 }}>Comments</h4>
+        <span className="stat-pill">{article.comments.length}</span>
+      </div>
+
       <FlashMessage message={error} onDismiss={() => setError('')} />
 
-      {tree.map((c) => (
-        <CommentCard
-          key={c.id}
-          comment={c}
-          depth={0}
-          user={user}
-          articleId={id}
-          onDelete={handleDeleteComment}
-          onRefresh={fetchArticle}
-        />
-      ))}
-
-      {user && (
-        <Form onSubmit={handleAddComment} className="mt-3">
-          <Form.Group className="mb-3" controlId="addComment">
-            <Form.Label>Add Comment</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={2}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Button type="submit" variant="primary">Submit</Button>
-        </Form>
+      {tree.length > 0 ? (
+        tree.map((c) => (
+          <CommentCard
+            key={c.id}
+            comment={c}
+            depth={0}
+            user={user}
+            articleId={id}
+            onDelete={handleDeleteComment}
+            onRefresh={fetchArticle}
+          />
+        ))
+      ) : (
+        <div className="empty-state" style={{ padding: '2rem' }}>
+          <p style={{ color: 'var(--gray-400)', margin: 0 }}>No comments yet. Be the first to comment.</p>
+        </div>
       )}
 
-      <Button as={Link} to="/articles" variant="outline-secondary" className="mt-3">
-        Back to Articles
-      </Button>
-    </>
+      {user && (
+        <Card className="mt-3" style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-200)' }}>
+          <Card.Body>
+            <Form onSubmit={handleAddComment}>
+              <Form.Group className="mb-3" controlId="addComment">
+                <Form.Label style={{ fontWeight: 600 }}>Add a comment</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Share your thoughts..."
+                  required
+                />
+              </Form.Group>
+              <Button type="submit" variant="primary">Post Comment</Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      )}
+    </div>
   );
 }

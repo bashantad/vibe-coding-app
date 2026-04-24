@@ -27,10 +27,13 @@ export default function LoginPage() {
   }
 
   return (
-    <Row className="justify-content-center">
-      <Col md={6}>
-        <Card className="shadow-sm">
-          <Card.Header as="h2" className="text-center">Login</Card.Header>
+    <Row className="justify-content-center fade-in-up" style={{ marginTop: '2rem' }}>
+      <Col md={5} lg={4}>
+        <Card className="auth-card">
+          <Card.Header>
+            <h2>Welcome back</h2>
+            <p>Sign in to your account</p>
+          </Card.Header>
           <Card.Body>
             <FlashMessage message={error} onDismiss={() => setError('')} />
             <Form onSubmit={handleSubmit}>
@@ -39,22 +42,27 @@ export default function LoginPage() {
                 <Form.Control
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
                   required
                 />
               </Form.Group>
-              <Form.Group className="mb-3" controlId="loginPassword">
+              <Form.Group className="mb-4" controlId="loginPassword">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
                   required
                 />
               </Form.Group>
-              <Button type="submit" variant="primary">Login</Button>
+              <Button type="submit" variant="primary" className="w-100 btn-lg mb-3">
+                Sign In
+              </Button>
             </Form>
-            <p className="mt-3">
-              Don't have an account? <Link to="/signup">Sign Up</Link>
+            <p className="text-center mb-0" style={{ fontSize: '0.9rem', color: 'var(--gray-500)' }}>
+              Don't have an account?{' '}
+              <Link to="/signup" style={{ fontWeight: 600 }}>Create one</Link>
             </p>
           </Card.Body>
         </Card>

@@ -31,7 +31,7 @@ describe('ArticleFormPage', () => {
       user: createMockUser(),
     });
     expect(screen.getByText('New Article')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Publish Article' })).toBeInTheDocument();
   });
 
   it('shows "Edit Article" heading and pre-fills form in edit mode', async () => {
@@ -57,7 +57,7 @@ describe('ArticleFormPage', () => {
       expect(screen.getByDisplayValue('Existing desc')).toBeInTheDocument();
       expect(screen.getByDisplayValue('tag1, tag2')).toBeInTheDocument();
     });
-    expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save Changes' })).toBeInTheDocument();
   });
 
   it('creates article and navigates to /articles on success', async () => {
@@ -71,9 +71,9 @@ describe('ArticleFormPage', () => {
     );
 
     await userEvent.type(screen.getByLabelText('Title'), 'New Post');
-    await userEvent.type(screen.getByLabelText('Description'), 'Content here');
-    await userEvent.type(screen.getByLabelText('Tags (comma separated)'), 'a,b');
-    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await userEvent.type(screen.getByLabelText('Content'), 'Content here');
+    await userEvent.type(screen.getByLabelText('Tags'), 'a,b');
+    await userEvent.click(screen.getByRole('button', { name: 'Publish Article' }));
 
     await waitFor(() => {
       expect(post).toHaveBeenCalledWith('/api/articles', {
@@ -106,7 +106,7 @@ describe('ArticleFormPage', () => {
 
     await userEvent.clear(screen.getByLabelText('Title'));
     await userEvent.type(screen.getByLabelText('Title'), 'Updated');
-    await userEvent.click(screen.getByRole('button', { name: 'Update' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
     await waitFor(() => {
       expect(put).toHaveBeenCalledWith('/api/articles/1', expect.objectContaining({
@@ -121,7 +121,7 @@ describe('ArticleFormPage', () => {
     renderWithProviders(<ArticleFormPage />, { user: createMockUser() });
 
     await userEvent.type(screen.getByLabelText('Title'), 'x');
-    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Publish Article' }));
 
     await waitFor(() => {
       expect(screen.getByText('Title required')).toBeInTheDocument();

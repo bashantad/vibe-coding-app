@@ -25,7 +25,7 @@ describe('Navbar', () => {
 
   it('shows brand link', () => {
     renderWithProviders(<AppNavbar />);
-    expect(screen.getByText('Todo App')).toBeInTheDocument();
+    expect(screen.getByText('Workspace')).toBeInTheDocument();
   });
 
   it('calls logout when Logout is clicked', async () => {

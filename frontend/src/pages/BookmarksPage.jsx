@@ -4,8 +4,7 @@ import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import Alert from 'react-bootstrap/Alert';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
+import Card from 'react-bootstrap/Card';
 import { get, post, del } from '../api';
 import { useAuth } from '../context/AuthContext';
 
@@ -61,73 +60,108 @@ export default function BookmarksPage() {
   }
 
   if (!user) {
-    return <Alert variant="warning">Please log in to view your bookmarks.</Alert>;
+    return (
+      <div className="empty-state fade-in-up" style={{ marginTop: '3rem' }}>
+        <div className="empty-state-icon">&#128274;</div>
+        <h5>Login required</h5>
+        <p>Please log in to view and manage your bookmarks</p>
+      </div>
+    );
   }
 
   if (loading) {
-    return <Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner>;
+    return (
+      <div className="loading-state">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
   }
 
   return (
-    <>
-      <h2>Bookmarks</h2>
+    <div className="fade-in-up">
+      <div className="page-header">
+        <h2>Bookmarks</h2>
+        <p>Save and organize your favorite links</p>
+      </div>
+
       {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
-      <Form onSubmit={handleAdd} className="mb-3">
-        <InputGroup className="mb-2">
-          <FormControl
-            name="url"
-            placeholder="URL"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            required
-          />
-        </InputGroup>
-        <InputGroup className="mb-2">
-          <FormControl
-            name="title"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </InputGroup>
-        <InputGroup className="mb-2">
-          <FormControl
-            name="description"
-            placeholder="Description (optional)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </InputGroup>
-        <Button type="submit" variant="primary">Save Bookmark</Button>
-      </Form>
-      <ListGroup>
-        {bookmarks.map((bm) => (
-          <ListGroup.Item
-            key={bm.id}
-            className="d-flex justify-content-between align-items-start"
-          >
-            <div>
-              <a href={bm.url} target="_blank" rel="noopener noreferrer">
-                {bm.title}
-              </a>
-              {bm.description && (
-                <div className="text-muted small">{bm.description}</div>
-              )}
+
+      <Card className="mb-4" style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-200)' }}>
+        <Card.Body>
+          <h6 style={{ fontWeight: 700, marginBottom: '0.75rem', color: 'var(--gray-700)' }}>
+            Add a bookmark
+          </h6>
+          <Form onSubmit={handleAdd}>
+            <div className="d-flex flex-column flex-md-row gap-2 mb-2">
+              <Form.Control
+                name="url"
+                placeholder="https://example.com"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                required
+                style={{ flex: 2 }}
+              />
+              <Form.Control
+                name="title"
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                style={{ flex: 1 }}
+              />
             </div>
-            <Button
-              size="sm"
-              variant="outline-danger"
-              onClick={() => handleDelete(bm.id)}
-            >
-              Delete
-            </Button>
-          </ListGroup.Item>
-        ))}
-        {bookmarks.length === 0 && (
-          <ListGroup.Item className="text-muted">No bookmarks yet.</ListGroup.Item>
-        )}
-      </ListGroup>
-    </>
+            <div className="d-flex gap-2">
+              <Form.Control
+                name="description"
+                placeholder="Description (optional)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <Button type="submit" variant="primary" className="flex-shrink-0">
+                Save
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+
+      {bookmarks.length > 0 ? (
+        <ListGroup>
+          {bookmarks.map((bm) => (
+            <ListGroup.Item key={bm.id}>
+              <div className="url-item">
+                <div className="url-item-info">
+                  <div className="url-item-title">
+                    <a href={bm.url} target="_blank" rel="noopener noreferrer">
+                      {bm.title}
+                    </a>
+                  </div>
+                  {bm.description && (
+                    <div className="url-item-desc">{bm.description}</div>
+                  )}
+                  <div className="url-item-meta">{bm.url}</div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={() => handleDelete(bm.id)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      ) : (
+        <div className="empty-state">
+          <div className="empty-state-icon">&#128278;</div>
+          <h5>No bookmarks yet</h5>
+          <p>Save your first bookmark above to get started</p>
+        </div>
+      )}
+    </div>
   );
 }

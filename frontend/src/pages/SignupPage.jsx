@@ -27,10 +27,13 @@ export default function SignupPage() {
   }
 
   return (
-    <Row className="justify-content-center">
-      <Col md={6}>
-        <Card className="shadow-sm">
-          <Card.Header as="h2" className="text-center">Sign Up</Card.Header>
+    <Row className="justify-content-center fade-in-up" style={{ marginTop: '2rem' }}>
+      <Col md={5} lg={4}>
+        <Card className="auth-card">
+          <Card.Header>
+            <h2>Create account</h2>
+            <p>Get started for free</p>
+          </Card.Header>
           <Card.Body>
             <FlashMessage message={error} onDismiss={() => setError('')} />
             <Form onSubmit={handleSubmit}>
@@ -39,22 +42,27 @@ export default function SignupPage() {
                 <Form.Control
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Choose a username"
                   required
                 />
               </Form.Group>
-              <Form.Group className="mb-3" controlId="signupPassword">
+              <Form.Group className="mb-4" controlId="signupPassword">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Create a password"
                   required
                 />
               </Form.Group>
-              <Button type="submit" variant="primary">Sign Up</Button>
+              <Button type="submit" variant="primary" className="w-100 btn-lg mb-3">
+                Create Account
+              </Button>
             </Form>
-            <p className="mt-3">
-              Already have an account? <Link to="/login">Login</Link>
+            <p className="text-center mb-0" style={{ fontSize: '0.9rem', color: 'var(--gray-500)' }}>
+              Already have an account?{' '}
+              <Link to="/login" style={{ fontWeight: 600 }}>Sign in</Link>
             </p>
           </Card.Body>
         </Card>

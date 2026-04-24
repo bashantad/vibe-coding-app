@@ -43,7 +43,7 @@ describe('FeedsPage', () => {
       expect(screen.getByText('ML Breakthrough')).toBeInTheDocument();
       // Subreddit appears in both filter pill and post card
       expect(screen.getAllByText('r/MachineLearning').length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText('Score: 250')).toBeInTheDocument();
+      expect(screen.getByText(/250/)).toBeInTheDocument();
     });
   });
 
